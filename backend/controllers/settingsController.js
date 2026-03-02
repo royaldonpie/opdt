@@ -5,7 +5,7 @@ exports.getClubSettings = async (req, res) => {
         if (!req.user.club_id) return res.status(404).json({ error: 'No club associated with this director.' });
 
         const result = await db.query(
-            `SELECT club_name, address, district, federation, contact_person, church_pastor, phone_number 
+            `SELECT club_name, address, district, federation, pathfinder_director, church_pastor, phone_number, pastor_phone_number 
              FROM Clubs WHERE id = $1`,
             [req.user.club_id]
         );
@@ -19,15 +19,15 @@ exports.getClubSettings = async (req, res) => {
 
 exports.updateClubSettings = async (req, res) => {
     try {
-        const { club_name, address, district, federation, contact_person, church_pastor, phone_number } = req.body;
+        const { club_name, address, district, federation, pathfinder_director, church_pastor, phone_number, pastor_phone_number } = req.body;
 
         if (!req.user.club_id) return res.status(400).json({ error: 'Cannot update: No associated club.' });
 
         await db.query(`
             UPDATE Clubs
-            SET club_name = $1, address = $2, district = $3, federation = $4, contact_person = $5, church_pastor = $6, phone_number = $7
-            WHERE id = $8
-        `, [club_name, address, district, federation, contact_person, church_pastor, phone_number, req.user.club_id]);
+            SET club_name = $1, address = $2, district = $3, federation = $4, pathfinder_director = $5, church_pastor = $6, phone_number = $7, pastor_phone_number = $8
+            WHERE id = $9
+        `, [club_name, address, district, federation, pathfinder_director, church_pastor, phone_number, pastor_phone_number, req.user.club_id]);
 
         res.json({ message: 'Settings saved successfully!' });
     } catch (err) {

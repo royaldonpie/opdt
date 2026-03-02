@@ -6,7 +6,7 @@ import { Save, Building, MapPin, Map, Flag, UserCircle, Users, Phone } from 'luc
 const Settings = () => {
     const { token } = useContext(AuthContext);
     const [formData, setFormData] = useState({
-        club_name: '', address: '', district: '', federation: '', contact_person: '', church_pastor: '', phone_number: ''
+        club_name: '', address: '', district: '', federation: '', pathfinder_director: '', church_pastor: '', phone_number: '', pastor_phone_number: ''
     });
     const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -19,9 +19,10 @@ const Settings = () => {
                     address: res.data.address || '',
                     district: res.data.district || '',
                     federation: res.data.federation || '',
-                    contact_person: res.data.contact_person || '',
+                    pathfinder_director: res.data.pathfinder_director || '',
                     church_pastor: res.data.church_pastor || '',
-                    phone_number: res.data.phone_number || ''
+                    phone_number: res.data.phone_number || '',
+                    pastor_phone_number: res.data.pastor_phone_number || ''
                 });
                 setLoading(false);
             })
@@ -87,18 +88,25 @@ const Settings = () => {
 
                 <hr className="border-slate-100" />
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2"><UserCircle className="w-4 h-4 mr-2" /> Contact Person</label>
-                        <input type="text" name="contact_person" value={formData.contact_person} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" />
+                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2"><UserCircle className="w-4 h-4 mr-2" /> Pathfinder Director</label>
+                        <input type="text" name="pathfinder_director" value={formData.pathfinder_director} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" />
                     </div>
                     <div>
-                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2"><Phone className="w-4 h-4 mr-2" /> Phone Number</label>
+                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2"><Phone className="w-4 h-4 mr-2" /> Director's Phone</label>
                         <input type="text" name="phone_number" value={formData.phone_number} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" />
                     </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="flex items-center text-sm font-bold text-slate-700 mb-2"><Users className="w-4 h-4 mr-2" /> Church Pastor</label>
                         <input type="text" name="church_pastor" value={formData.church_pastor} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" placeholder="Pr. John Doe" />
+                    </div>
+                    <div>
+                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2"><Phone className="w-4 h-4 mr-2" /> Pastor's Phone</label>
+                        <input type="text" name="pastor_phone_number" value={formData.pastor_phone_number} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" placeholder="+1..." />
                     </div>
                 </div>
 
