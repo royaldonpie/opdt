@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogOut, LayoutDashboard, Users, FileCheck, FileUp, ClipboardList, Settings, Menu, X, Bell, ShoppingCart, Moon, Sun } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, FileCheck, FileText, FileUp, ClipboardList, Settings, Menu, X, Bell, ShoppingCart, Moon, Sun } from 'lucide-react';
 import axios from 'axios';
 
 const DashboardLayout = ({ children }) => {
@@ -55,6 +55,7 @@ const DashboardLayout = ({ children }) => {
             { name: 'Submit Exam', path: '/director/exams', icon: ClipboardList },
             { name: 'Approved Exams', path: '/director/approved-exams', icon: FileCheck },
             { name: 'Upload Report', path: '/director/reports', icon: FileUp },
+            { name: 'My Reports', path: '/director/my-reports', icon: FileText },
             { name: 'Manage Members', path: '/director/members', icon: Users },
             { name: 'Supply Orders', path: '/director/orders', icon: ShoppingCart },
             { name: 'Announcements', path: '/notifications', icon: Bell },

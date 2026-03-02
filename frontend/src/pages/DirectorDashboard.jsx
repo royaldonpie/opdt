@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Users, AlertCircle, FileCheck, FileText, ClipboardList, FileUp } from 'lucide-react';
+import { Users, AlertCircle, FileCheck, FileText, ClipboardList, FileUp, FileArchive } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const DirectorDashboard = () => {
@@ -49,6 +49,7 @@ const DirectorDashboard = () => {
                 <div className="flex gap-4 flex-wrap">
                     <button onClick={() => navigate('/director/exams')} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><ClipboardList className="w-5 h-5" /> Submit Exam</button>
                     <button onClick={() => navigate('/director/reports')} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><FileUp className="w-5 h-5" /> Upload Report</button>
+                    <button onClick={() => navigate('/director/my-reports')} className="bg-slate-700 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><FileArchive className="w-5 h-5" /> My Reports</button>
                     <button onClick={() => navigate('/director/approved-exams')} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><FileCheck className="w-5 h-5" /> Approved Exams</button>
                     <button onClick={() => navigate('/director/members')} className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><Users className="w-5 h-5" /> Manage Members</button>
                 </div>

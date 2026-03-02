@@ -14,6 +14,7 @@ import AdminReports from './pages/AdminReports';
 import SubmitExam from './pages/SubmitExam';
 import ApprovedExams from './pages/ApprovedExams';
 import UploadReport from './pages/UploadReport';
+import MyReports from './pages/MyReports';
 import ManageMembers from './pages/ManageMembers';
 import Settings from './pages/Settings';
 import Orders from './pages/Orders';
@@ -80,6 +81,12 @@ function App() {
           <Route path="/director/reports" element={
             <ProtectedRoute allowedRoles={['director']}>
               <UploadReport />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/director/my-reports" element={
+            <ProtectedRoute allowedRoles={['director']}>
+              <MyReports />
             </ProtectedRoute>
           } />
 

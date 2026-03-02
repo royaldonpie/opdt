@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { FileText, CheckCircle, Clock, ShieldAlert, DownloadCloud, MessageSquareText, Link2 } from 'lucide-react';
+import { FileText, CheckCircle, Clock, ShieldAlert, DownloadCloud, MessageSquareText, Link2, Search, Filter } from 'lucide-react';
 
 const AdminReports = () => {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('all'); // all, pending, endorsed
     const { token } = useContext(AuthContext);
 
     const fetchReports = () => {
@@ -26,19 +28,94 @@ const AdminReports = () => {
         }
     };
 
-    if (loading) return <div>Loading reports...</div>;
+    if (loading) return <div className="p-10 text-center font-bold text-slate-500">Loading reports...</div>;
+
+    const filteredReports = reports.filter(r => {
+        const matchesSearch = r.club_name?.toLowerCase().includes(searchTerm.toLowerCase()) || r.report_type.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesFilter = filterType === 'all' ? true : filterType === 'endorsed' ? r.approved : !r.approved;
+        return matchesSearch && matchesFilter;
+    });
+
+    const pendingCount = reports.filter(r => !r.approved).length;
+    const endorsedCount = reports.filter(r => r.approved).length;
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-end mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-slate-800">Conference Reports Vector</h2>
-                    <p className="text-slate-500 text-sm mt-1">Audit club operation files and attach director remarks.</p>
+                    <h2 className="text-3xl font-extrabold tracking-tight text-slate-800">Conference Reports Vector</h2>
+                    <p className="text-slate-500 text-sm mt-2 max-w-lg">Audit structural reports systematically, attach director remarks, and maintain compliance standards across all operating clubs.</p>
+                </div>
+            </div>
+
+            {/* Metrics Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center">
+                    <div className="bg-indigo-50 w-14 h-14 rounded-2xl flex items-center justify-center text-indigo-500 mr-5">
+                        <FileText className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-semibold text-slate-500">Total Volume</p>
+                        <h3 className="text-2xl font-black text-slate-800">{reports.length} Reports</h3>
+                    </div>
+                </div>
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center">
+                    <div className="bg-amber-50 w-14 h-14 rounded-2xl flex items-center justify-center text-amber-500 mr-5">
+                        <Clock className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-semibold text-slate-500">Awaiting Sub-Audits</p>
+                        <h3 className="text-2xl font-black text-slate-800">{pendingCount} Pending</h3>
+                    </div>
+                </div>
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center">
+                    <div className="bg-emerald-50 w-14 h-14 rounded-2xl flex items-center justify-center text-emerald-500 mr-5">
+                        <CheckCircle className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-semibold text-slate-500">Endorsed Clearance</p>
+                        <h3 className="text-2xl font-black text-slate-800">{endorsedCount} Passed</h3>
+                    </div>
+                </div>
+            </div>
+
+            {/* Filter Tools Row */}
+            <div className="bg-white/90 backdrop-blur-xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-4 flex flex-col md:flex-row gap-4 justify-between items-center z-10 relative">
+                <div className="relative w-full md:w-80">
+                    <Search className="absolute left-4 top-1/2 mt-[1px] transform -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
+                    <input
+                        type="text"
+                        placeholder="Search by Club Name or Type..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm font-medium rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-200 transition"
+                    />
+                </div>
+
+                <div className="flex bg-slate-100 p-1.5 rounded-2xl w-full md:w-auto">
+                    <button
+                        onClick={() => setFilterType('all')}
+                        className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl font-bold text-sm transition ${filterType === 'all' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                        All
+                    </button>
+                    <button
+                        onClick={() => setFilterType('pending')}
+                        className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl font-bold text-sm transition ${filterType === 'pending' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                        Pending Audit
+                    </button>
+                    <button
+                        onClick={() => setFilterType('endorsed')}
+                        className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl font-bold text-sm transition ${filterType === 'endorsed' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                        Endorsed
+                    </button>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {reports.map((r, i) => (
+                {filteredReports.map((r, i) => (
                     <div key={r.id} className="bg-white/90 backdrop-blur-xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-3xl p-6 hover:shadow-lg transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-full">
 
                         <div>
