@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { UserPlus, Shield, Trash2, Calendar, Mail } from 'lucide-react';
+import { UserPlus, Shield, Trash2, Calendar, Mail, Key } from 'lucide-react';
 
 const ManageUsers = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [formVisible, setFormVisible] = useState(false);
+    const [resettingUser, setResettingUser] = useState(null);
+    const [newPassword, setNewPassword] = useState('');
     const { token } = useContext(AuthContext);
 
     // Form state
@@ -36,6 +38,21 @@ const ManageUsers = () => {
             await axios.delete(`http://localhost:5000/api/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
             fetchUsers();
         } catch (e) { alert('Error deleting user'); }
+    };
+
+    const handlePasswordReset = async () => {
+        if (!newPassword || newPassword.length < 6) return alert('Password must be at least 6 characters.');
+        try {
+            await axios.put(`http://localhost:5000/api/users/${resettingUser.id}/reset-password`,
+                { newPassword },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert(`Password for ${resettingUser.name} successfully reset.`);
+            setResettingUser(null);
+            setNewPassword('');
+        } catch (e) {
+            alert(e.response?.data?.error || 'Error resetting password');
+        }
     };
 
     if (loading) return <div>Loading...</div>;
@@ -92,6 +109,29 @@ const ManageUsers = () => {
                 </div>
             )}
 
+            {resettingUser && (
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95">
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">Reset Password</h3>
+                        <p className="text-sm text-slate-500 mb-6">Enter a new secure password for <span className="font-bold text-slate-700">{resettingUser.name}</span>.</p>
+
+                        <input
+                            type="text"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-6 font-medium focus:ring-2 focus:ring-amber-200"
+                            placeholder="New Password (min 6 chars)"
+                            value={newPassword}
+                            onChange={e => setNewPassword(e.target.value)}
+                            autoFocus
+                        />
+
+                        <div className="flex justify-end gap-3">
+                            <button onClick={() => { setResettingUser(null); setNewPassword(''); }} className="px-5 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+                            <button onClick={handlePasswordReset} className="px-5 py-2.5 bg-amber-500 text-white rounded-xl shadow-md cursor-pointer hover:bg-amber-600 transition font-bold">Confirm Reset</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="bg-white/90 backdrop-blur-xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
@@ -131,7 +171,10 @@ const ManageUsers = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-5 text-right">
-                                        <button onClick={() => handleDelete(u.id)} className="text-rose-400 hover:text-rose-600 hover:bg-rose-50 p-2 rounded-xl transition">
+                                        <button onClick={() => setResettingUser(u)} className="text-amber-500 hover:text-amber-600 hover:bg-amber-50 p-2 rounded-xl transition mr-2" title="Reset Password">
+                                            <Key className="w-5 h-5" />
+                                        </button>
+                                        <button onClick={() => handleDelete(u.id)} className="text-rose-400 hover:text-rose-600 hover:bg-rose-50 p-2 rounded-xl transition" title="Delete User">
                                             <Trash2 className="w-5 h-5" />
                                         </button>
                                     </td>
