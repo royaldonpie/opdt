@@ -12,6 +12,7 @@ import ManageUsers from './pages/ManageUsers';
 import ReviewExams from './pages/ReviewExams';
 import AdminReports from './pages/AdminReports';
 import SubmitExam from './pages/SubmitExam';
+import ApprovedExams from './pages/ApprovedExams';
 import UploadReport from './pages/UploadReport';
 import ManageMembers from './pages/ManageMembers';
 import Settings from './pages/Settings';
@@ -67,6 +68,12 @@ function App() {
           <Route path="/director/exams" element={
             <ProtectedRoute allowedRoles={['director']}>
               <SubmitExam />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/director/approved-exams" element={
+            <ProtectedRoute allowedRoles={['director']}>
+              <ApprovedExams />
             </ProtectedRoute>
           } />
 

@@ -53,6 +53,7 @@ const DashboardLayout = ({ children }) => {
         director: [
             { name: 'Dashboard', path: '/director', icon: LayoutDashboard },
             { name: 'Submit Exam', path: '/director/exams', icon: ClipboardList },
+            { name: 'Approved Exams', path: '/director/approved-exams', icon: FileCheck },
             { name: 'Upload Report', path: '/director/reports', icon: FileUp },
             { name: 'Manage Members', path: '/director/members', icon: Users },
             { name: 'Supply Orders', path: '/director/orders', icon: ShoppingCart },
