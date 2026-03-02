@@ -142,7 +142,7 @@ const AdminReports = () => {
                                 <p className="text-[0.7rem] font-bold uppercase tracking-wider text-slate-400 mt-2">DTS: {new Date(r.date_submitted).toLocaleString()}</p>
                             </div>
 
-                            {r.report_type === 'baptism' ? (
+                            {r.report_type === 'baptismal' ? (
                                 <div className="bg-indigo-50/80 border border-indigo-100 rounded-2xl p-4 mb-6 relative block">
                                     <p className="text-[0.65rem] font-black text-indigo-400 uppercase tracking-widest mb-1 block">Registered Baptisms</p>
                                     <p className="text-xl font-black text-indigo-700">

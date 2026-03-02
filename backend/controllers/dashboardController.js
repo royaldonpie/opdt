@@ -68,7 +68,7 @@ exports.getObserverDashboard = async (req, res) => {
         const totalMembers = await db.query('SELECT COUNT(*) FROM Members');
 
         // Count total registered baptisms from reports
-        const totalBaptismsRes = await db.query(`SELECT SUM(baptism_count) as total_baptisms FROM Reports WHERE report_type = 'baptism' AND approved = true`);
+        const totalBaptismsRes = await db.query(`SELECT SUM(baptism_count) as total_baptisms FROM Reports WHERE report_type = 'baptismal' AND approved = true`);
         const totalBaptisms = totalBaptismsRes.rows[0].total_baptisms || 0;
 
         const clubsData = await db.query(`

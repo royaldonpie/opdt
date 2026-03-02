@@ -12,7 +12,7 @@ const UploadReport = () => {
     const [loading, setLoading] = useState(false);
     const { token } = useContext(AuthContext);
 
-    const isBaptism = reportType === 'baptism';
+    const isBaptism = reportType === 'baptismal';
 
     const handleFileChange = (e) => {
         const selected = e.target.files[0];
@@ -89,7 +89,7 @@ const UploadReport = () => {
                         <option value="program report">Program Report</option>
                         <option value="evangelism/mission">Evangelism / Mission</option>
                         <option value="camping">Camping</option>
-                        <option value="baptism">Baptism Census</option>
+                        <option value="baptismal">Baptismal Report</option>
                     </select>
                 </div>
 

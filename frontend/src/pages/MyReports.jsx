@@ -58,7 +58,7 @@ const MyReports = () => {
                                 </div>
 
                                 <div className="flex-shrink-0 w-full md:w-auto flex items-center gap-3 mt-4 md:mt-0">
-                                    {r.report_type === 'baptism' ? (
+                                    {r.report_type === 'baptismal' ? (
                                         <div className="bg-indigo-50 border border-indigo-100 text-indigo-700 px-4 py-2 rounded-xl text-center">
                                             <p className="text-[0.65rem] font-black uppercase tracking-widest mb-0.5">Baptized</p>
                                             <p className="font-bold text-lg leading-none">{r.baptism_count} Souls</p>

@@ -6,10 +6,10 @@ exports.submitReport = async (req, res) => {
         const file_url = req.file ? `/uploads/${req.file.filename}` : null;
         const club_id = req.user.club_id; // from JWT token after Director login
 
-        if (report_type !== 'baptism' && !file_url) {
+        if (report_type !== 'baptismal' && !file_url) {
             return res.status(400).json({ error: 'Valid support file is required.' });
         }
-        if (report_type === 'baptism' && (baptism_count === undefined || baptism_count === null)) {
+        if (report_type === 'baptismal' && (baptism_count === undefined || baptism_count === null)) {
             return res.status(400).json({ error: 'Baptism count is required.' });
         }
         if (!club_id) {
