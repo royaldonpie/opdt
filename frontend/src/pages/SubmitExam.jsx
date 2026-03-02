@@ -50,8 +50,9 @@ const SubmitExam = () => {
             });
             setStatus({ type: 'success', msg: 'Exam successfully passed initial AI screening and is submitted for Admin review!' });
             setFile(null);
-            setExamData({ ...examData, honor_name: '' });
-            e.target.reset();
+            setExamData({ class_level: 'Friend', exam_type: 'achievement_class', honor_name: '' });
+            document.getElementById('file-upload').value = ''; // Reset UI file input
+            setTimeout(() => setStatus(null), 10000);
         } catch (err) {
             setStatus({ type: 'error', msg: err.response?.data?.error || 'Validation Failed' });
         } finally {
@@ -118,6 +119,7 @@ const SubmitExam = () => {
                     <label className="block text-sm font-bold text-slate-700 mb-3">Attach the Exam Document</label>
                     <div className="relative mt-1 flex justify-center px-6 pt-10 pb-12 border-2 border-slate-200 border-dashed rounded-[2rem] hover:border-indigo-400 hover:bg-indigo-50/30 transition-all group cursor-pointer">
                         <input
+                            id="file-upload"
                             type="file"
                             onChange={handleFileChange}
                             accept=".pdf,.doc,.docx"
