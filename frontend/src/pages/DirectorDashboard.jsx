@@ -49,6 +49,7 @@ const DirectorDashboard = () => {
                 <div className="flex gap-4">
                     <button onClick={() => navigate('/director/exams')} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition">Submit Exam</button>
                     <button onClick={() => navigate('/director/reports')} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition">Upload Report</button>
+                    <button onClick={() => navigate('/director/approved-exams')} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><FileCheck className="w-5 h-5" /> Approved Exams</button>
                     <button onClick={() => navigate('/director/members')} className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-medium shadow-md transition">Manage Members</button>
                 </div>
             </div>
