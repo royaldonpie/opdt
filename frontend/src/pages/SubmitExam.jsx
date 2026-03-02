@@ -104,7 +104,15 @@ const SubmitExam = () => {
                             <label className="block text-sm font-bold text-slate-700 mb-2">Target Class</label>
                             <select
                                 value={examData.class_level}
-                                onChange={e => setExamData({ ...examData, class_level: e.target.value })}
+                                onChange={e => {
+                                    const newClass = e.target.value;
+                                    setExamData({
+                                        ...examData,
+                                        class_level: newClass,
+                                        exam_type: newClass === 'General' ? 'honor' : examData.exam_type,
+                                        honor_name: ''
+                                    });
+                                }}
                                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-200"
                             >
                                 {['Friend', 'Companion', 'Explorer', 'Ranger', 'Voyager', 'Guide', 'General'].map(c => <option key={c} value={c}>{c}</option>)}
@@ -117,9 +125,10 @@ const SubmitExam = () => {
                                 onChange={e => {
                                     setExamData({ ...examData, exam_type: e.target.value, honor_name: '' });
                                 }}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-200"
+                                disabled={examData.class_level === 'General'}
+                                className={`w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-200 ${examData.class_level === 'General' ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
-                                <option value="achievement_class">Achievement Class</option>
+                                {examData.class_level !== 'General' && <option value="achievement_class">Achievement Class</option>}
                                 <option value="honor">Honor</option>
                             </select>
                         </div>
@@ -134,9 +143,12 @@ const SubmitExam = () => {
                                 >
                                     <option value="">-- Choose Honor --</option>
                                     {honorsList
-                                        .filter(h => examData.class_level === 'General' ? true : (h.class_level === examData.class_level || !h.class_level))
+                                        .filter(h => {
+                                            if (examData.class_level === 'General') return h.category === 'general';
+                                            return h.class_level === examData.class_level && h.category !== 'general';
+                                        })
                                         .map(h => (
-                                            <option key={h.id} value={h.honor_name}>{h.honor_name} {h.category === 'general' && '(General)'}</option>
+                                            <option key={h.id} value={h.honor_name}>{h.honor_name}</option>
                                         ))
                                     }
                                 </select>
@@ -198,8 +210,8 @@ const SubmitExam = () => {
                                 </div>
                                 <div className="text-right flex items-center space-x-4">
                                     <span className={`text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-full ${ex.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
-                                            ex.status === 'rejected' ? 'bg-rose-100 text-rose-700' :
-                                                'bg-amber-100 text-amber-700'
+                                        ex.status === 'rejected' ? 'bg-rose-100 text-rose-700' :
+                                            'bg-amber-100 text-amber-700'
                                         }`}>
                                         {ex.status}
                                     </span>
