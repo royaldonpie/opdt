@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { LayoutDashboard, FileCheck, FileText, CheckCircle, Clock } from 'lucide-react';
+import { LayoutDashboard, FileCheck, FileText, CheckCircle, Clock, Users, Shield, Award } from 'lucide-react';
 
 const ObserverDashboard = () => {
     const [reports, setReports] = useState([]);
     const [exams, setExams] = useState([]);
+    const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
     const { token } = useContext(AuthContext);
 
@@ -14,16 +15,15 @@ const ObserverDashboard = () => {
             try {
                 // Observers can theoretically use a separate summary endpoint, but since the routes allow GET we can fetch directly
                 const rRes = await axios.get('http://localhost:5000/api/reports', { headers: { Authorization: `Bearer ${token}` } });
+                const dRes = await axios.get('http://localhost:5000/api/dashboards/observer', { headers: { Authorization: `Bearer ${token}` } });
 
-                // Note: Get pending exams is available for Super Admin. Let's assume observer hits another endpoint or we fake it. 
-                // Wait, Observer should have read-only access to ALL exams. The current backend getPendingExams only returns pending. 
-                // I will add a mock fetch catch block just to show empty if the endpoint throws 403 due to role check.
                 let eRes = { data: [] };
                 try {
                     eRes = await axios.get('http://localhost:5000/api/exams/pending', { headers: { Authorization: `Bearer ${token}` } });
                 } catch (e) { }
 
                 setReports(rRes.data);
+                setDashboardData(dRes.data);
                 setExams(eRes.data);
             } catch (error) {
                 console.error(error);
@@ -45,9 +45,68 @@ const ObserverDashboard = () => {
                 <p className="text-slate-500 text-sm mt-2 max-w-xl leading-relaxed">System-wide read-only monitoring access. Audit Conference reports and pending exam requests without execution privileges.</p>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            {/* Unified Stats Row */}
+            {dashboardData && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center">
+                        <div className="bg-indigo-50 w-14 h-14 rounded-2xl flex items-center justify-center text-indigo-500 mr-5">
+                            <Shield className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-semibold text-slate-500">Total Operational Clubs</p>
+                            <h3 className="text-3xl font-black text-slate-800">{dashboardData.totalClubs}</h3>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center">
+                        <div className="bg-amber-50 w-14 h-14 rounded-2xl flex items-center justify-center text-amber-500 mr-5">
+                            <Users className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-semibold text-slate-500">Conference Population</p>
+                            <h3 className="text-3xl font-black text-slate-800">{dashboardData.totalMembers}</h3>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center">
+                        <div className="bg-emerald-50 w-14 h-14 rounded-2xl flex items-center justify-center text-emerald-500 mr-5">
+                            <Award className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-semibold text-slate-500">Exams Approved Total</p>
+                            <h3 className="text-3xl font-black text-slate-800">{dashboardData.approvedExams}</h3>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                <div className="bg-white/90 backdrop-blur-xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-8">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+                {/* Clubs Population Data */}
+                {dashboardData && dashboardData.clubsData && (
+                    <div className="xl:col-span-1 bg-white/90 backdrop-blur-xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-8">
+                        <h3 className="text-xl font-bold tracking-tight text-slate-800 mb-6 flex items-center">
+                            <Shield className="w-6 h-6 mr-3 text-indigo-500" /> Club Populations
+                        </h3>
+                        <div className="space-y-3">
+                            {dashboardData.clubsData.length === 0 && <p className="text-sm text-slate-400 font-medium">No active clubs registered.</p>}
+                            {dashboardData.clubsData.map((club, idx) => (
+                                <div key={club.id} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-2xl group hover:border-indigo-200 hover:bg-indigo-50/30 transition-all">
+                                    <div className="flex items-center">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs mr-3">
+                                            {idx + 1}
+                                        </div>
+                                        <h4 className="font-bold text-sm text-slate-700 capitalize group-hover:text-indigo-700 transition">{club.club_name}</h4>
+                                    </div>
+                                    <span className="bg-white shadow-sm text-indigo-700 py-1 flex items-center px-3 rounded-full text-xs font-bold tracking-widest">
+                                        <Users className="w-3 h-3 mr-1.5" />
+                                        {club.population}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div className="xl:col-span-1 bg-white/90 backdrop-blur-xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-8">
                     <h3 className="text-xl font-bold tracking-tight text-slate-800 mb-6 flex items-center">
                         <FileText className="w-6 h-6 mr-3 text-emerald-500" /> Recent Club Reports
                     </h3>
@@ -75,7 +134,7 @@ const ObserverDashboard = () => {
                     </div>
                 </div>
 
-                <div className="bg-white/90 backdrop-blur-xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-8">
+                <div className="xl:col-span-1 bg-white/90 backdrop-blur-xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-8">
                     <h3 className="text-xl font-bold tracking-tight text-slate-800 mb-6 flex items-center">
                         <FileCheck className="w-6 h-6 mr-3 text-emerald-500" /> Pending Approval Exams
                     </h3>

@@ -63,16 +63,24 @@ exports.getDirectorDashboard = async (req, res) => {
 };
 
 exports.getObserverDashboard = async (req, res) => {
-    // Observer gets a reduced view
     try {
         const clubsCount = await db.query('SELECT COUNT(*) FROM Clubs');
         const totalMembers = await db.query('SELECT COUNT(*) FROM Members');
         const approvedExams = await db.query(`SELECT COUNT(*) FROM Exams WHERE status = 'approved'`);
 
+        const clubsData = await db.query(`
+            SELECT c.id, c.club_name, COUNT(m.id) as population
+            FROM Clubs c
+            LEFT JOIN Members m ON c.id = m.club_id
+            GROUP BY c.id, c.club_name
+            ORDER BY population DESC
+        `);
+
         res.json({
             totalClubs: parseInt(clubsCount.rows[0].count),
             totalMembers: parseInt(totalMembers.rows[0].count),
-            approvedExams: parseInt(approvedExams.rows[0].count)
+            approvedExams: parseInt(approvedExams.rows[0].count),
+            clubsData: clubsData.rows
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
