@@ -8,6 +8,9 @@ router.use(authenticateToken); // Protect all exam routes
 
 router.post('/', requireRole('director'), upload.single('exam_file'), examController.submitExam);
 router.get('/pending', requireRole('super_admin', 'observer'), examController.getPendingExams);
-router.put('/:id', requireRole('super_admin'), examController.updateExamStatus);
+router.put('/:id', requireRole('super_admin'), upload.single('exam_file'), examController.updateExamStatus);
+
+router.get('/my-exams', requireRole('director'), examController.getMyExams);
+router.get('/honors', examController.getHonors);
 
 module.exports = router;

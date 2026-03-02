@@ -6,6 +6,7 @@ import { FileCheck, Activity, CheckCircle, Sparkles, DownloadCloud } from 'lucid
 const ReviewExams = () => {
     const [exams, setExams] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [replacementFiles, setReplacementFiles] = useState({});
     const { token } = useContext(AuthContext);
 
     const fetchExams = () => {
@@ -19,10 +20,23 @@ const ReviewExams = () => {
     const handleAction = async (id, status) => {
         const comment = prompt(`Add a remark for ${status} (Optional):`) || '';
         try {
-            await axios.put(`http://localhost:5000/api/exams/${id}`, { status, admin_comment: comment }, { headers: { Authorization: `Bearer ${token}` } });
+            const formData = new FormData();
+            formData.append('status', status);
+            formData.append('admin_comment', comment);
+            if (replacementFiles[id]) {
+                formData.append('exam_file', replacementFiles[id]);
+            }
+
+            await axios.put(`http://localhost:5000/api/exams/${id}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
             fetchExams();
+            setReplacementFiles(prev => { const updated = { ...prev }; delete updated[id]; return updated; });
         } catch (e) {
-            alert('Failed to update status');
+            alert('Failed to update status: ' + (e.response?.data?.error || e.message));
         }
     };
 
@@ -70,7 +84,7 @@ const ReviewExams = () => {
                                     <p className="text-[0.7rem] font-bold uppercase tracking-wider text-slate-400 mt-2">DTS: {new Date(exam.submitted_at).toLocaleString()}</p>
                                 </div>
 
-                                <div className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer">
+                                <a href={`http://localhost:5000/uploads/${exam.file_path}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer block hover:bg-slate-100">
                                     <div className="absolute top-1/2 -mt-[8px] right-4 opacity-0 group-hover/btn:opacity-100 group-hover/btn:-translate-y-1 transition text-slate-600">
                                         <DownloadCloud className="w-5 h-5" />
                                     </div>
@@ -78,7 +92,7 @@ const ReviewExams = () => {
                                     <p className="text-sm font-semibold text-slate-700 flex items-center">
                                         {exam.file_path || 'No Document Found'}
                                     </p>
-                                </div>
+                                </a>
 
                                 <div className="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-4 mb-8">
                                     <p className="text-[0.65rem] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center block">
@@ -88,6 +102,14 @@ const ReviewExams = () => {
                                         {exam.ai_analysis || 'No AI data available or parsing failed.'}
                                     </p>
                                 </div>
+                            </div>
+
+                            <div className="mt-4 mb-4">
+                                <label className="text-xs font-bold text-slate-500 mb-1 block">Admin Replacement File (Optional)</label>
+                                <input type="file"
+                                    onChange={e => setReplacementFiles({ ...replacementFiles, [exam.id]: e.target.files[0] })}
+                                    className="text-xs text-slate-500 w-full"
+                                />
                             </div>
 
                             <div className="flex gap-3 mt-auto">

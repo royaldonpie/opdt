@@ -1,13 +1,33 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { UploadCloud, CheckCircle2, ShieldAlert, Sparkles } from 'lucide-react';
+import { UploadCloud, CheckCircle2, ShieldAlert, Sparkles, Clock, DownloadCloud } from 'lucide-react';
 
 const SubmitExam = () => {
     const { token } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null);
     const [file, setFile] = useState(null);
+    const [honorsList, setHonorsList] = useState([]);
+    const [myExams, setMyExams] = useState([]);
+
+    const fetchMyExams = () => {
+        if (token) {
+            axios.get('http://localhost:5000/api/exams/my-exams', { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => setMyExams(res.data))
+                .catch(err => console.error('Failed to load my exams'));
+        }
+    };
+
+    // Fetch honors based on selected class
+    React.useEffect(() => {
+        if (token) {
+            axios.get('http://localhost:5000/api/exams/honors', { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => setHonorsList(res.data))
+                .catch(err => console.error('Failed to load honors list:', err));
+            fetchMyExams();
+        }
+    }, [token]);
 
     // Initial Exam state
     const [examData, setExamData] = useState({
@@ -53,6 +73,7 @@ const SubmitExam = () => {
             setExamData({ class_level: 'Friend', exam_type: 'achievement_class', honor_name: '' });
             document.getElementById('file-upload').value = ''; // Reset UI file input
             setTimeout(() => setStatus(null), 10000);
+            fetchMyExams();
         } catch (err) {
             setStatus({ type: 'error', msg: err.response?.data?.error || 'Validation Failed' });
         } finally {
@@ -93,23 +114,32 @@ const SubmitExam = () => {
                             <label className="block text-sm font-bold text-slate-700 mb-2">Exam Category</label>
                             <select
                                 value={examData.exam_type}
-                                onChange={e => setExamData({ ...examData, exam_type: e.target.value })}
+                                onChange={e => {
+                                    setExamData({ ...examData, exam_type: e.target.value, honor_name: '' });
+                                }}
                                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-200"
                             >
                                 <option value="achievement_class">Achievement Class</option>
-                                <option value="honor">Specific Honor</option>
+                                <option value="honor">Honor</option>
                             </select>
                         </div>
                         {examData.exam_type === 'honor' && (
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-2">Honor Title</label>
-                                <input
-                                    type="text" required
+                                <select
+                                    required
                                     value={examData.honor_name}
                                     onChange={e => setExamData({ ...examData, honor_name: e.target.value })}
-                                    placeholder="E.g. Camp Craft"
                                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-200"
-                                />
+                                >
+                                    <option value="">-- Choose Honor --</option>
+                                    {honorsList
+                                        .filter(h => examData.class_level === 'General' ? true : (h.class_level === examData.class_level || !h.class_level))
+                                        .map(h => (
+                                            <option key={h.id} value={h.honor_name}>{h.honor_name} {h.category === 'general' && '(General)'}</option>
+                                        ))
+                                    }
+                                </select>
                             </div>
                         )}
                     </div>
@@ -152,6 +182,39 @@ const SubmitExam = () => {
                     </button>
                 </div>
             </form>
+
+            {myExams.length > 0 && (
+                <div className="mt-16 bg-white/90 backdrop-blur-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-[2rem] p-8">
+                    <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center">
+                        <Clock className="w-5 h-5 mr-2 text-indigo-500" /> Submission History & Approved Downloads
+                    </h3>
+                    <div className="space-y-4">
+                        {myExams.map(ex => (
+                            <div key={ex.id} className="flex justify-between items-center p-4 border border-slate-100 rounded-2xl bg-slate-50 relative overflow-hidden group hover:border-indigo-100 transition">
+                                <div>
+                                    <p className="font-bold text-slate-700 capitalize">{ex.exam_type.replace('_', ' ')} - {ex.class_level}</p>
+                                    {ex.honor_name && <p className="text-xs font-semibold text-purple-600 uppercase tracking-widest">{ex.honor_name}</p>}
+                                    <p className="text-xs text-slate-400 mt-1">{new Date(ex.submitted_at).toLocaleDateString()}</p>
+                                </div>
+                                <div className="text-right flex items-center space-x-4">
+                                    <span className={`text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-full ${ex.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
+                                            ex.status === 'rejected' ? 'bg-rose-100 text-rose-700' :
+                                                'bg-amber-100 text-amber-700'
+                                        }`}>
+                                        {ex.status}
+                                    </span>
+                                    {ex.status === 'approved' && (
+                                        <a href={`http://localhost:5000/uploads/${ex.file_path}`} target="_blank" rel="noopener noreferrer" className="ml-3 p-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-xl transition flex text-xs font-bold font-sans items-center">
+                                            <DownloadCloud className="w-4 h-4 mr-2" />
+                                            Print Question
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
