@@ -142,15 +142,26 @@ const AdminReports = () => {
                                 <p className="text-[0.7rem] font-bold uppercase tracking-wider text-slate-400 mt-2">DTS: {new Date(r.date_submitted).toLocaleString()}</p>
                             </div>
 
-                            <a href={`http://localhost:5000${r.file_url}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer block hover:bg-slate-100 transition">
-                                <div className="absolute top-1/2 -mt-[8px] right-4 opacity-0 group-hover/btn:opacity-100 group-hover/btn:-translate-y-1 transition text-slate-600">
-                                    <DownloadCloud className="w-5 h-5" />
+                            {r.report_type === 'baptism' ? (
+                                <div className="bg-indigo-50/80 border border-indigo-100 rounded-2xl p-4 mb-6 relative block">
+                                    <p className="text-[0.65rem] font-black text-indigo-400 uppercase tracking-widest mb-1 block">Registered Baptisms</p>
+                                    <p className="text-xl font-black text-indigo-700">
+                                        {r.baptism_count} Souls
+                                    </p>
                                 </div>
-                                <p className="text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-1 block">Attached Payload</p>
-                                <p className="text-sm font-semibold text-slate-700 truncate pr-6 hover:text-indigo-600">
-                                    {r.file_url.split('-').pop()}
-                                </p>
-                            </a>
+                            ) : (
+                                r.file_url && (
+                                    <a href={`http://localhost:5000${r.file_url}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer block hover:bg-slate-100 transition">
+                                        <div className="absolute top-1/2 -mt-[8px] right-4 opacity-0 group-hover/btn:opacity-100 group-hover/btn:-translate-y-1 transition text-slate-600">
+                                            <DownloadCloud className="w-5 h-5" />
+                                        </div>
+                                        <p className="text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-1 block">Attached Payload</p>
+                                        <p className="text-sm font-semibold text-slate-700 truncate pr-6 hover:text-indigo-600">
+                                            {r.file_url.split('-').pop()}
+                                        </p>
+                                    </a>
+                                )
+                            )}
 
                             {r.video_link && (
                                 <a href={r.video_link} target="_blank" rel="noopener noreferrer" className="bg-rose-50/50 border border-rose-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer block hover:bg-rose-100 transition">

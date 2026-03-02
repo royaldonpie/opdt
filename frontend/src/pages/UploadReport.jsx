@@ -7,9 +7,12 @@ const UploadReport = () => {
     const [file, setFile] = useState(null);
     const [reportType, setReportType] = useState('investiture');
     const [videoLink, setVideoLink] = useState('');
+    const [baptismCount, setBaptismCount] = useState('');
     const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(false);
     const { token } = useContext(AuthContext);
+
+    const isBaptism = reportType === 'baptism';
 
     const handleFileChange = (e) => {
         const selected = e.target.files[0];
@@ -20,13 +23,20 @@ const UploadReport = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!file) return alert('Please select a valid report document.');
+
+        if (!isBaptism && !file) return alert('Please select a valid report document.');
+        if (isBaptism && (!baptismCount || parseInt(baptismCount) < 0)) return alert('Please enter a valid total number of baptisms.');
 
         const formData = new FormData();
-        formData.append('report_file', file);
         formData.append('report_type', reportType);
-        if (videoLink) {
-            formData.append('video_link', videoLink);
+
+        if (isBaptism) {
+            formData.append('baptism_count', baptismCount);
+        } else {
+            formData.append('report_file', file);
+            if (videoLink) {
+                formData.append('video_link', videoLink);
+            }
         }
 
         setLoading(true);
@@ -40,6 +50,7 @@ const UploadReport = () => {
             });
             setStatus({ type: 'success', msg: 'Report successfully securely uploaded!' });
             setFile(null);
+            setBaptismCount('');
             e.target.reset();
         } catch (err) {
             setStatus({ type: 'error', msg: err.response?.data?.error || 'Upload failed' });
@@ -78,41 +89,58 @@ const UploadReport = () => {
                         <option value="program report">Program Report</option>
                         <option value="evangelism/mission">Evangelism / Mission</option>
                         <option value="camping">Camping</option>
+                        <option value="baptism">Baptism Census</option>
                     </select>
                 </div>
 
-                <div className="mb-8">
-                    <label className="block text-sm font-bold text-slate-700 mb-3">External Media Link (Optional)</label>
-                    <input
-                        type="url"
-                        value={videoLink}
-                        onChange={e => setVideoLink(e.target.value)}
-                        placeholder="https://youtube.com/... or social media link"
-                        className="w-full bg-slate-50/50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-700 font-medium focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition"
-                    />
-                </div>
-
-                <div className="mb-8">
-                    <label className="block text-sm font-bold text-slate-700 mb-3">Attach File</label>
-                    <div className="relative mt-1 flex justify-center px-6 pt-10 pb-12 border-2 border-slate-200 border-dashed rounded-[2rem] hover:border-indigo-400 hover:bg-indigo-50/30 transition-all group cursor-pointer">
+                {isBaptism ? (
+                    <div className="mb-8">
+                        <label className="block text-sm font-bold text-slate-700 mb-3">Total Number of Baptisms</label>
                         <input
-                            type="file"
-                            accept=".pdf,.doc,.docx,.ppt,.pptx"
-                            onChange={handleFileChange}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            type="number"
+                            min="0"
+                            value={baptismCount}
+                            onChange={e => setBaptismCount(e.target.value)}
+                            placeholder="e.g. 15"
+                            className="w-full bg-slate-50/50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-700 font-medium focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition"
                         />
-                        <div className="space-y-2 text-center">
-                            <UploadCloud className="mx-auto h-14 w-14 text-indigo-300 group-hover:text-indigo-500 transition-colors" />
-                            <div className="flex text-sm text-slate-600 justify-center">
-                                <span className="relative font-bold text-indigo-600 bg-white px-2 rounded-md">
-                                    {file ? file.name : "Upload a file"}
-                                </span>
-                                {!file && <p className="pl-1 font-medium">or drag and drop</p>}
-                            </div>
-                            <p className="text-xs text-slate-400 font-medium">PDF, Word, or PowerPoint up to 10MB</p>
-                        </div>
                     </div>
-                </div>
+                ) : (
+                    <>
+                        <div className="mb-8">
+                            <label className="block text-sm font-bold text-slate-700 mb-3">External Media Link (Optional)</label>
+                            <input
+                                type="url"
+                                value={videoLink}
+                                onChange={e => setVideoLink(e.target.value)}
+                                placeholder="https://youtube.com/... or social media link"
+                                className="w-full bg-slate-50/50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-700 font-medium focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition"
+                            />
+                        </div>
+
+                        <div className="mb-8">
+                            <label className="block text-sm font-bold text-slate-700 mb-3">Attach File</label>
+                            <div className="relative mt-1 flex justify-center px-6 pt-10 pb-12 border-2 border-slate-200 border-dashed rounded-[2rem] hover:border-indigo-400 hover:bg-indigo-50/30 transition-all group cursor-pointer">
+                                <input
+                                    type="file"
+                                    accept=".pdf,.doc,.docx,.ppt,.pptx"
+                                    onChange={handleFileChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                />
+                                <div className="space-y-2 text-center">
+                                    <UploadCloud className="mx-auto h-14 w-14 text-indigo-300 group-hover:text-indigo-500 transition-colors" />
+                                    <div className="flex text-sm text-slate-600 justify-center">
+                                        <span className="relative font-bold text-indigo-600 bg-white px-2 rounded-md">
+                                            {file ? file.name : "Upload a file"}
+                                        </span>
+                                        {!file && <p className="pl-1 font-medium">or drag and drop</p>}
+                                    </div>
+                                    <p className="text-xs text-slate-400 font-medium">PDF, Word, or PowerPoint up to 10MB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
 
                 <button
                     disabled={loading}

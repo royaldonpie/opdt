@@ -66,7 +66,10 @@ exports.getObserverDashboard = async (req, res) => {
     try {
         const clubsCount = await db.query('SELECT COUNT(*) FROM Clubs');
         const totalMembers = await db.query('SELECT COUNT(*) FROM Members');
-        const approvedExams = await db.query(`SELECT COUNT(*) FROM Exams WHERE status = 'approved'`);
+
+        // Count total registered baptisms from reports
+        const totalBaptismsRes = await db.query(`SELECT SUM(baptism_count) as total_baptisms FROM Reports WHERE report_type = 'baptism' AND approved = true`);
+        const totalBaptisms = totalBaptismsRes.rows[0].total_baptisms || 0;
 
         const clubsData = await db.query(`
             SELECT c.id, c.club_name, COUNT(m.id) as population
@@ -79,7 +82,7 @@ exports.getObserverDashboard = async (req, res) => {
         res.json({
             totalClubs: parseInt(clubsCount.rows[0].count),
             totalMembers: parseInt(totalMembers.rows[0].count),
-            approvedExams: parseInt(approvedExams.rows[0].count),
+            totalBaptisms: parseInt(totalBaptisms),
             clubsData: clubsData.rows
         });
     } catch (err) {
