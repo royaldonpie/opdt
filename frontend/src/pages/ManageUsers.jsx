@@ -15,7 +15,7 @@ const ManageUsers = () => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'director', club_name: '' });
 
     const fetchUsers = () => {
-        axios.get('http://localhost:5000/api/users', { headers: { Authorization: `Bearer ${token}` } })
+        axios.get('\/api/users', { headers: { Authorization: `Bearer ${token}` } })
             .then(res => { setUsers(res.data); setLoading(false); })
             .catch(console.error);
     };
@@ -25,7 +25,7 @@ const ManageUsers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/users', formData, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.post('\/api/users', formData, { headers: { Authorization: `Bearer ${token}` } });
             setFormVisible(false);
             setFormData({ name: '', email: '', password: '', role: 'director', club_name: '' });
             fetchUsers();
@@ -35,7 +35,7 @@ const ManageUsers = () => {
     const handleDelete = async (id) => {
         if (!confirm('Are you sure you want to delete this user?')) return;
         try {
-            await axios.delete(`http://localhost:5000/api/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.delete(`\/api/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
             fetchUsers();
         } catch (e) { alert('Error deleting user'); }
     };
@@ -43,7 +43,7 @@ const ManageUsers = () => {
     const handlePasswordReset = async () => {
         if (!newPassword || newPassword.length < 6) return alert('Password must be at least 6 characters.');
         try {
-            await axios.put(`http://localhost:5000/api/users/${resettingUser.id}/reset-password`,
+            await axios.put(`\/api/users/${resettingUser.id}/reset-password`,
                 { newPassword },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

@@ -16,7 +16,7 @@ const ManageMembers = () => {
     });
 
     const fetchMembers = () => {
-        axios.get('http://localhost:5000/api/members', { headers: { Authorization: `Bearer ${token}` } })
+        axios.get('\/api/members', { headers: { Authorization: `Bearer ${token}` } })
             .then(res => { setMembers(res.data); setLoading(false); })
             .catch(console.error);
     };
@@ -26,7 +26,7 @@ const ManageMembers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/members', formData, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.post('\/api/members', formData, { headers: { Authorization: `Bearer ${token}` } });
             setFormVisible(false);
             setFormData({ full_name: '', gender: 'Male', class_level: 'Friend', role: 'pathfinder', year_joined: new Date().getFullYear(), age: 10, instructor_rank: '' });
             fetchMembers();
@@ -36,7 +36,7 @@ const ManageMembers = () => {
     const handleDelete = async (id) => {
         if (!confirm('Are you sure you want to remove this member?')) return;
         try {
-            await axios.delete(`http://localhost:5000/api/members/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.delete(`\/api/members/${id}`, { headers: { Authorization: `Bearer ${token}` } });
             fetchMembers();
         } catch (e) { alert('Error removing member'); }
     };
@@ -66,7 +66,7 @@ const ManageMembers = () => {
                         age: parseInt(row.age || row.Age || 10),
                         instructor_rank: row.instructor_rank || row.Rank || ''
                     };
-                    await axios.post('http://localhost:5000/api/members', parsed, { headers: { Authorization: `Bearer ${token}` } });
+                    await axios.post('\/api/members', parsed, { headers: { Authorization: `Bearer ${token}` } });
                 }
                 alert('Bulk roster successfully imported and mapped to database!');
                 fetchMembers();

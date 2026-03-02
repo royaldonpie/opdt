@@ -9,7 +9,7 @@ const MyReports = () => {
     const { token } = useContext(AuthContext);
 
     const fetchReports = () => {
-        axios.get('http://localhost:5000/api/reports', { headers: { Authorization: `Bearer ${token}` } })
+        axios.get('\/api/reports', { headers: { Authorization: `Bearer ${token}` } })
             .then(res => { setReports(res.data); setLoading(false); })
             .catch(console.error);
     };
@@ -66,7 +66,7 @@ const MyReports = () => {
                                     ) : (
                                         <>
                                             {r.file_url && (
-                                                <a href={`http://localhost:5000${r.file_url}`} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-xl transition flex text-xs font-bold items-center" title="View Document">
+                                                <a href={`\${r.file_url}`} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-xl transition flex text-xs font-bold items-center" title="View Document">
                                                     <FileText className="w-5 h-5" />
                                                 </a>
                                             )}

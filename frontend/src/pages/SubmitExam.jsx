@@ -11,7 +11,7 @@ const SubmitExam = () => {
     // Fetch honors based on selected class
     React.useEffect(() => {
         if (token) {
-            axios.get('http://localhost:5000/api/exams/honors', { headers: { Authorization: `Bearer ${token}` } })
+            axios.get('\/api/exams/honors', { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => setHonorsList(res.data))
                 .catch(err => console.error('Failed to load honors list:', err));
         }
@@ -50,7 +50,7 @@ const SubmitExam = () => {
         }
 
         try {
-            await axios.post('http://localhost:5000/api/exams', formData, {
+            await axios.post('\/api/exams', formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'

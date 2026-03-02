@@ -11,7 +11,7 @@ const AdminReports = () => {
     const { token } = useContext(AuthContext);
 
     const fetchReports = () => {
-        axios.get('http://localhost:5000/api/reports', { headers: { Authorization: `Bearer ${token}` } })
+        axios.get('\/api/reports', { headers: { Authorization: `Bearer ${token}` } })
             .then(res => { setReports(res.data); setLoading(false); })
             .catch(console.error);
     };
@@ -21,7 +21,7 @@ const AdminReports = () => {
     const handleAction = async (id, currentStatus) => {
         const remark = prompt(`Enter official remark to Director:`) || '';
         try {
-            await axios.put(`http://localhost:5000/api/reports/${id}`, { approved: !currentStatus, admin_remark: remark }, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.put(`\/api/reports/${id}`, { approved: !currentStatus, admin_remark: remark }, { headers: { Authorization: `Bearer ${token}` } });
             fetchReports();
         } catch (e) {
             alert('Failed to update report status');
@@ -151,7 +151,7 @@ const AdminReports = () => {
                                 </div>
                             ) : (
                                 r.file_url && (
-                                    <a href={`http://localhost:5000${r.file_url}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer block hover:bg-slate-100 transition">
+                                    <a href={`\${r.file_url}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer block hover:bg-slate-100 transition">
                                         <div className="absolute top-1/2 -mt-[8px] right-4 opacity-0 group-hover/btn:opacity-100 group-hover/btn:-translate-y-1 transition text-slate-600">
                                             <DownloadCloud className="w-5 h-5" />
                                         </div>

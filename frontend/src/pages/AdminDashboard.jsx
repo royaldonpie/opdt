@@ -8,7 +8,7 @@ const AdminDashboard = () => {
     const { token } = useContext(AuthContext);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/dashboards/admin', {
+        axios.get('\/api/dashboards/admin', {
             headers: { Authorization: `Bearer ${token}` }
         }).then(res => setData(res.data)).catch(console.error);
     }, [token]);

@@ -9,7 +9,7 @@ const ApprovedExams = () => {
     const { token } = useContext(AuthContext);
 
     const fetchMyExams = () => {
-        axios.get('http://localhost:5000/api/exams/my-exams', { headers: { Authorization: `Bearer ${token}` } })
+        axios.get('\/api/exams/my-exams', { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setExams(res.data);
                 setLoading(false);
@@ -82,7 +82,7 @@ const ApprovedExams = () => {
                                 <div className="flex-shrink-0 w-full md:w-auto flex flex-col items-end gap-3 mt-4 md:mt-0">
                                     {ex.status === 'approved' && ex.file_path && (
                                         <a
-                                            href={`http://localhost:5000/uploads/${ex.file_path}`}
+                                            href={`\/uploads/${ex.file_path}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="w-full md:w-auto inline-flex justify-center items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-200/50 rounded-xl transition transform active:scale-95 font-bold text-sm tracking-wide"

@@ -12,7 +12,7 @@ const Settings = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/settings/club', { headers: { Authorization: `Bearer ${token}` } })
+        axios.get('\/api/settings/club', { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setFormData({
                     club_name: res.data.club_name || '',
@@ -39,7 +39,7 @@ const Settings = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put('http://localhost:5000/api/settings/club', formData, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.put('\/api/settings/club', formData, { headers: { Authorization: `Bearer ${token}` } });
             setStatus({ type: 'success', msg: 'Club details updated successfully.' });
             setTimeout(() => setStatus(null), 3000);
         } catch (err) {

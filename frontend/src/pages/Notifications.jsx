@@ -15,14 +15,14 @@ const Notifications = () => {
     const [usersList, setUsersList] = useState([]);
 
     const fetchNotifications = () => {
-        axios.get('http://localhost:5000/api/notifications', { headers: { Authorization: `Bearer ${token}` } })
+        axios.get('\/api/notifications', { headers: { Authorization: `Bearer ${token}` } })
             .then(res => setNotifications(res.data))
             .finally(() => setLoading(false));
     };
 
     const fetchUsers = () => {
         if (user.role === 'super_admin') {
-            axios.get('http://localhost:5000/api/users', { headers: { Authorization: `Bearer ${token}` } })
+            axios.get('\/api/users', { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => setUsersList(res.data.filter(u => u.role === 'director')))
                 .catch(console.error);
         }
@@ -36,7 +36,7 @@ const Notifications = () => {
     const handleBroadcast = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/notifications', { receiver_id: receiverId, title, message }, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.post('\/api/notifications', { receiver_id: receiverId, title, message }, { headers: { Authorization: `Bearer ${token}` } });
             setTitle('');
             setMessage('');
             fetchNotifications();
@@ -49,7 +49,7 @@ const Notifications = () => {
     const markAsRead = async (id) => {
         if (user.role === 'super_admin') return; // Admins just sent them
         try {
-            await axios.put(`http://localhost:5000/api/notifications/${id}/read`, {}, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.put(`\/api/notifications/${id}/read`, {}, { headers: { Authorization: `Bearer ${token}` } });
             fetchNotifications();
         } catch (err) {
             console.error(err);

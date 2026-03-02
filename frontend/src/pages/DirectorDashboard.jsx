@@ -10,7 +10,7 @@ const DirectorDashboard = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/dashboards/director', {
+        axios.get('\/api/dashboards/director', {
             headers: { Authorization: `Bearer ${token}` }
         }).then(res => setData(res.data)).catch(console.error);
     }, [token]);

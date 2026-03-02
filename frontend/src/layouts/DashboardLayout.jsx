@@ -16,7 +16,7 @@ const DashboardLayout = ({ children }) => {
     // Quick polling to check for unread notifications for bell icon (director)
     useEffect(() => {
         if (user && token) {
-            axios.get('http://localhost:5000/api/notifications', { headers: { Authorization: `Bearer ${token}` } })
+            axios.get('\/api/notifications', { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
                     if (user.role === 'director' && res.data.some(n => !n.is_read)) {
                         setHasUnread(true);

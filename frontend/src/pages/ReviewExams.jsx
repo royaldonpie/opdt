@@ -10,7 +10,7 @@ const ReviewExams = () => {
     const { token } = useContext(AuthContext);
 
     const fetchExams = () => {
-        axios.get('http://localhost:5000/api/exams/pending', { headers: { Authorization: `Bearer ${token}` } })
+        axios.get('\/api/exams/pending', { headers: { Authorization: `Bearer ${token}` } })
             .then(res => { setExams(res.data); setLoading(false); })
             .catch(console.error);
     };
@@ -27,7 +27,7 @@ const ReviewExams = () => {
                 formData.append('exam_file', replacementFiles[id]);
             }
 
-            await axios.put(`http://localhost:5000/api/exams/${id}`, formData, {
+            await axios.put(`\/api/exams/${id}`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'
@@ -84,7 +84,7 @@ const ReviewExams = () => {
                                     <p className="text-[0.7rem] font-bold uppercase tracking-wider text-slate-400 mt-2">DTS: {new Date(exam.submitted_at).toLocaleString()}</p>
                                 </div>
 
-                                <a href={`http://localhost:5000/uploads/${exam.file_path}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer block hover:bg-slate-100">
+                                <a href={`\/uploads/${exam.file_path}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer block hover:bg-slate-100">
                                     <div className="absolute top-1/2 -mt-[8px] right-4 opacity-0 group-hover/btn:opacity-100 group-hover/btn:-translate-y-1 transition text-slate-600">
                                         <DownloadCloud className="w-5 h-5" />
                                     </div>

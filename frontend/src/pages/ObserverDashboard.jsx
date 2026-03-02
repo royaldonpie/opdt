@@ -14,12 +14,12 @@ const ObserverDashboard = () => {
         const fetchAll = async () => {
             try {
                 // Observers can theoretically use a separate summary endpoint, but since the routes allow GET we can fetch directly
-                const rRes = await axios.get('http://localhost:5000/api/reports', { headers: { Authorization: `Bearer ${token}` } });
-                const dRes = await axios.get('http://localhost:5000/api/dashboards/observer', { headers: { Authorization: `Bearer ${token}` } });
+                const rRes = await axios.get('\/api/reports', { headers: { Authorization: `Bearer ${token}` } });
+                const dRes = await axios.get('\/api/dashboards/observer', { headers: { Authorization: `Bearer ${token}` } });
 
                 let eRes = { data: [] };
                 try {
-                    eRes = await axios.get('http://localhost:5000/api/exams/pending', { headers: { Authorization: `Bearer ${token}` } });
+                    eRes = await axios.get('\/api/exams/pending', { headers: { Authorization: `Bearer ${token}` } });
                 } catch (e) { }
 
                 setReports(rRes.data);
@@ -119,7 +119,7 @@ const ObserverDashboard = () => {
                                     <h4 className="font-bold text-sm text-slate-700 capitalize">{r.report_type} Report</h4>
                                     <p className="text-[0.7rem] text-slate-500 font-medium">{r.club_name} • {new Date(r.date_submitted).toLocaleDateString()}</p>
                                     {r.file_url && (
-                                        <a href={`http://localhost:5000${r.file_url}`} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:text-indigo-700 font-semibold block mt-1 underline">
+                                        <a href={`\${r.file_url}`} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:text-indigo-700 font-semibold block mt-1 underline">
                                             View Report File
                                         </a>
                                     )}
@@ -148,7 +148,7 @@ const ObserverDashboard = () => {
                                         <h4 className="font-bold text-sm text-slate-700 capitalize">{e.exam_type.replace('_', ' ')}</h4>
                                         <p className="text-[0.65rem] text-slate-500 font-medium uppercase tracking-widest mt-1">Class {e.class_level}</p>
                                         {e.file_path && (
-                                            <a href={`http://localhost:5000/uploads/${e.file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-emerald-500 hover:text-emerald-700 font-semibold block mt-1 underline">
+                                            <a href={`\/uploads/${e.file_path}`} target="_blank" rel="noopener noreferrer" className="text-xs text-emerald-500 hover:text-emerald-700 font-semibold block mt-1 underline">
                                                 Review Exam File
                                             </a>
                                         )}
