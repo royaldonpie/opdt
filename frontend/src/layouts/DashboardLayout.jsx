@@ -13,18 +13,52 @@ const DashboardLayout = ({ children }) => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [hasUnread, setHasUnread] = useState(false);
 
-    // Quick polling to check for unread notifications for bell icon (director)
+    // Ask for Notification permission on mount
     useEffect(() => {
-        if (user && token) {
-            axios.get('\/api/notifications', { headers: { Authorization: `Bearer ${token}` } })
-                .then(res => {
-                    if (user.role === 'director' && res.data.some(n => !n.is_read)) {
-                        setHasUnread(true);
-                    } else {
-                        setHasUnread(false);
-                    }
-                }).catch(() => { });
+        if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission();
         }
+    }, []);
+
+    // Polling and native push notification
+    useEffect(() => {
+        if (!user || !token || user.role !== 'director') return;
+
+        const fetchNotifications = async () => {
+            try {
+                const res = await axios.get('\/api/notifications', { headers: { Authorization: `Bearer ${token}` } });
+                const unreadNotifs = res.data.filter(n => !n.is_read);
+
+                if (unreadNotifs.length > 0) {
+                    setHasUnread(true);
+
+                    // Native Push Notification Logic
+                    const maxId = Math.max(...unreadNotifs.map(n => n.id));
+                    const lastNotified = localStorage.getItem('last_notified_id');
+
+                    if (lastNotified !== maxId.toString()) {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            const latestNotif = unreadNotifs.find(n => n.id === maxId);
+                            new Notification('New Notification', {
+                                body: latestNotif?.message || 'You have a new unread message.',
+                                icon: '/logo.png'
+                            });
+                        }
+                        localStorage.setItem('last_notified_id', maxId.toString());
+                    }
+                } else {
+                    setHasUnread(false);
+                }
+            } catch (err) { }
+        };
+
+        // Initial fetch
+        fetchNotifications();
+
+        // Setup polling every 30 seconds
+        const intervalId = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(intervalId);
+
     }, [user, token, location.pathname]);
 
     const handleLogout = () => {
@@ -45,8 +79,10 @@ const DashboardLayout = ({ children }) => {
     const navLinks = {
         super_admin: [
             { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+            { name: 'Global Members', path: '/admin/all-members', icon: Users },
             { name: 'Review Exams', path: '/admin/exams', icon: FileCheck },
             { name: 'Review Reports', path: '/admin/reports', icon: ClipboardList },
+            { name: 'Resources', path: '/admin/resources', icon: FileText },
             { name: 'Manage Users', path: '/admin/users', icon: Users },
             { name: 'Comm-Link', path: '/notifications', icon: Bell },
         ],
@@ -57,12 +93,14 @@ const DashboardLayout = ({ children }) => {
             { name: 'Upload Report', path: '/director/reports', icon: FileUp },
             { name: 'My Reports', path: '/director/my-reports', icon: FileText },
             { name: 'Manage Members', path: '/director/members', icon: Users },
+            { name: 'Resources', path: '/director/resources', icon: FileText },
             { name: 'Supply Orders', path: '/director/orders', icon: ShoppingCart },
             { name: 'Announcements', path: '/notifications', icon: Bell },
             { name: 'Settings', path: '/director/settings', icon: Settings },
         ],
         observer: [
             { name: 'Dashboard', path: '/observer', icon: LayoutDashboard },
+            { name: 'Global Members', path: '/observer/all-members', icon: Users },
         ]
     };
 
@@ -149,7 +187,7 @@ const DashboardLayout = ({ children }) => {
                                 <Menu className="w-6 h-6" />
                             </button>
                             <div>
-                                <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Welcome Back, {user?.name ? user.name.split(' ')[0] : 'Leader'}</h1>
+                                <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Welcome Back, {user?.club_name || (user?.name ? user.name.split(' ')[0] : 'Leader')}</h1>
                                 <p className="text-slate-500 mt-1 font-medium hidden md:block">Here's what's happening today.</p>
                             </div>
                         </div>

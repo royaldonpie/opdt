@@ -2,12 +2,13 @@ import React, { useEffect, useState, useContext, useRef } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { AuthContext } from '../context/AuthContext';
-import { UserPlus, Trash2, Shield, User, Upload } from 'lucide-react';
+import { UserPlus, Trash2, Shield, User, Upload, Edit } from 'lucide-react';
 
 const ManageMembers = () => {
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [formVisible, setFormVisible] = useState(false);
+    const [editId, setEditId] = useState(null);
     const { token } = useContext(AuthContext);
     const fileInputRef = useRef(null);
 
@@ -26,11 +27,31 @@ const ManageMembers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('\/api/members', formData, { headers: { Authorization: `Bearer ${token}` } });
+            if (editId) {
+                await axios.put(`/api/members/${editId}`, formData, { headers: { Authorization: `Bearer ${token}` } });
+            } else {
+                await axios.post('/api/members', formData, { headers: { Authorization: `Bearer ${token}` } });
+            }
             setFormVisible(false);
+            setEditId(null);
             setFormData({ full_name: '', gender: 'Male', class_level: 'Friend', role: 'pathfinder', year_joined: new Date().getFullYear(), age: 10, instructor_rank: '' });
             fetchMembers();
-        } catch (e) { alert('Error adding member'); }
+        } catch (e) { alert('Error saving member'); }
+    };
+
+    const handleEdit = (m) => {
+        setFormData({
+            full_name: m.full_name,
+            gender: m.gender,
+            class_level: m.class_level,
+            role: m.role,
+            year_joined: m.year_joined,
+            age: m.age || 10,
+            instructor_rank: m.instructor_rank || ''
+        });
+        setEditId(m.id);
+        setFormVisible(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleDelete = async (id) => {
@@ -158,8 +179,8 @@ const ManageMembers = () => {
                             <input type="number" required min="2000" max="2100" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" value={formData.year_joined} onChange={e => setFormData({ ...formData, year_joined: e.target.value })} />
                         </div>
                         <div className="col-span-full flex justify-end gap-3 mt-4">
-                            <button type="button" onClick={() => setFormVisible(false)} className="px-6 py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition">Cancel Sequence</button>
-                            <button type="submit" className="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-md cursor-pointer hover:bg-indigo-700 transition">Inject into Roster</button>
+                            <button type="button" onClick={() => { setFormVisible(false); setEditId(null); }} className="px-6 py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition">Cancel Sequence</button>
+                            <button type="submit" className="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-md cursor-pointer hover:bg-indigo-700 transition">{editId ? 'Update Entity' : 'Inject into Roster'}</button>
                         </div>
                     </form>
                 </div>
@@ -210,9 +231,14 @@ const ManageMembers = () => {
                                         {m.year_joined}
                                     </td>
                                     <td className="px-6 py-5 pr-10 text-right">
-                                        <button onClick={() => handleDelete(m.id)} className="text-rose-400 hover:text-white hover:bg-rose-500 p-2.5 rounded-xl font-bold text-xs uppercase transition shadow-sm border border-rose-100 hover:border-transparent flex items-center justify-center ml-auto">
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button onClick={() => handleEdit(m)} className="text-indigo-400 hover:text-white hover:bg-indigo-500 p-2.5 rounded-xl font-bold text-xs uppercase transition shadow-sm border border-indigo-100 hover:border-transparent flex items-center justify-center">
+                                                <Edit className="w-4 h-4" />
+                                            </button>
+                                            <button onClick={() => handleDelete(m.id)} className="text-rose-400 hover:text-white hover:bg-rose-500 p-2.5 rounded-xl font-bold text-xs uppercase transition shadow-sm border border-rose-100 hover:border-transparent flex items-center justify-center">
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

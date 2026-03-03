@@ -11,6 +11,7 @@ const userRoutes = require('./routes/users');
 const memberRoutes = require('./routes/members');
 const settingsRoutes = require('./routes/settings');
 const notificationRoutes = require('./routes/notifications');
+const resourceRoutes = require('./routes/resources');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/members', memberRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/resources', resourceRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

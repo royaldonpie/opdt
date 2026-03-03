@@ -19,6 +19,9 @@ import ManageMembers from './pages/ManageMembers';
 import Settings from './pages/Settings';
 import Orders from './pages/Orders';
 import Notifications from './pages/Notifications';
+import AdminResources from './pages/AdminResources';
+import Resources from './pages/Resources';
+import AllMembers from './pages/AllMembers';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, token } = useContext(AuthContext);
@@ -54,9 +57,21 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/admin/resources" element={
+            <ProtectedRoute allowedRoles={['super_admin']}>
+              <AdminResources />
+            </ProtectedRoute>
+          } />
+
           <Route path="/admin/reports" element={
             <ProtectedRoute allowedRoles={['super_admin']}>
               <AdminReports />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/admin/all-members" element={
+            <ProtectedRoute allowedRoles={['super_admin']}>
+              <AllMembers />
             </ProtectedRoute>
           } />
 
@@ -108,6 +123,12 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/director/resources" element={
+            <ProtectedRoute allowedRoles={['director']}>
+              <Resources />
+            </ProtectedRoute>
+          } />
+
           <Route path="/notifications" element={
             <ProtectedRoute allowedRoles={['super_admin', 'director']}>
               <Notifications />
@@ -117,6 +138,12 @@ function App() {
           <Route path="/observer" element={
             <ProtectedRoute allowedRoles={['observer']}>
               <ObserverDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/observer/all-members" element={
+            <ProtectedRoute allowedRoles={['observer']}>
+              <AllMembers />
             </ProtectedRoute>
           } />
 

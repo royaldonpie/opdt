@@ -42,20 +42,45 @@ const AdminDashboard = () => {
                 ))}
             </div>
 
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
-                <h3 className="text-xl font-bold text-slate-800 mb-6">Top Honors Distributed</h3>
-                {data.honorDistribution?.length === 0 ? (
-                    <p className="text-slate-500 text-sm">No honor data available yet.</p>
-                ) : (
-                    <div className="space-y-4">
-                        {data.honorDistribution?.map((honor, i) => (
-                            <div key={i} className="flex justify-between items-center p-5 bg-slate-50/50 hover:bg-slate-50 rounded-2xl border border-slate-100 transition">
-                                <span className="font-semibold text-slate-700 text-lg">{honor.honor_name}</span>
-                                <span className="bg-indigo-100 text-indigo-700 py-1.5 px-4 rounded-full text-sm font-bold shadow-sm">{honor.total_awarded} awarded</span>
-                            </div>
-                        ))}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 h-[400px] flex flex-col">
+                    <h3 className="text-xl font-bold text-slate-800 mb-6 shrink-0">Top Honors Distributed</h3>
+                    <div className="flex-1 overflow-y-auto pr-2 space-y-4 hidden-scrollbar">
+                        {data.honorDistribution?.length === 0 ? (
+                            <p className="text-slate-500 text-sm">No honor data available yet.</p>
+                        ) : (
+                            data.honorDistribution?.map((honor, i) => (
+                                <div key={i} className="flex justify-between items-center p-5 bg-slate-50/50 hover:bg-slate-50 rounded-2xl border border-slate-100 transition">
+                                    <span className="font-semibold text-slate-700 text-lg">{honor.honor_name}</span>
+                                    <span className="bg-indigo-100 text-indigo-700 py-1.5 px-4 rounded-full text-sm font-bold shadow-sm">{honor.total_awarded} awarded</span>
+                                </div>
+                            ))
+                        )}
                     </div>
-                )}
+                </div>
+
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 h-[400px] flex flex-col">
+                    <h3 className="text-xl font-bold text-slate-800 mb-6 shrink-0">Recent Activity</h3>
+                    <div className="flex-1 overflow-y-auto pr-2 space-y-4 hidden-scrollbar">
+                        {(!data.activities || data.activities.length === 0) ? (
+                            <p className="text-slate-500 text-sm">No recent activity found.</p>
+                        ) : (
+                            data.activities.map((act, i) => (
+                                <div key={i} className="flex flex-col p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <span className="font-bold text-slate-800 text-sm">{act.action}</span>
+                                        <span className="text-xs text-slate-400 font-medium">{new Date(act.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                    <p className="text-slate-600 text-sm">{act.description}</p>
+                                    <div className="mt-2 flex gap-2">
+                                        <span className="text-[0.65rem] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wide">{act.club_name}</span>
+                                        <span className="text-[0.65rem] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md uppercase tracking-wide">{act.user_name}</span>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

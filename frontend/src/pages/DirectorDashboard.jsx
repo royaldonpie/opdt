@@ -44,14 +44,38 @@ const DirectorDashboard = () => {
                 ))}
             </div>
 
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
-                <h3 className="text-xl font-bold text-slate-800 mb-6">Quick Actions</h3>
-                <div className="flex gap-4 flex-wrap">
-                    <button onClick={() => navigate('/director/exams')} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><ClipboardList className="w-5 h-5" /> Submit Exam</button>
-                    <button onClick={() => navigate('/director/reports')} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><FileUp className="w-5 h-5" /> Upload Report</button>
-                    <button onClick={() => navigate('/director/my-reports')} className="bg-slate-700 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><FileArchive className="w-5 h-5" /> My Reports</button>
-                    <button onClick={() => navigate('/director/approved-exams')} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><FileCheck className="w-5 h-5" /> Approved Exams</button>
-                    <button onClick={() => navigate('/director/members')} className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><Users className="w-5 h-5" /> Manage Members</button>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 flex flex-col justify-start">
+                    <h3 className="text-xl font-bold text-slate-800 mb-6 shrink-0">Quick Actions</h3>
+                    <div className="flex gap-4 flex-wrap">
+                        <button onClick={() => navigate('/director/exams')} className="w-full sm:w-auto flex-1 justify-center bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><ClipboardList className="w-5 h-5" /> Submit Exam</button>
+                        <button onClick={() => navigate('/director/reports')} className="w-full sm:w-auto flex-1 justify-center bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><FileUp className="w-5 h-5" /> Upload Report</button>
+                        <button onClick={() => navigate('/director/my-reports')} className="w-full sm:w-auto flex-1 justify-center bg-slate-700 hover:bg-slate-800 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><FileArchive className="w-5 h-5" /> My Reports</button>
+                        <button onClick={() => navigate('/director/approved-exams')} className="w-full sm:w-auto flex-1 justify-center bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><FileCheck className="w-5 h-5" /> Approved Exams</button>
+                        <button onClick={() => navigate('/director/members')} className="w-full sm:w-auto flex-1 justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-medium shadow-md transition flex items-center gap-2"><Users className="w-5 h-5" /> Manage Members</button>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 flex flex-col h-[400px]">
+                    <h3 className="text-xl font-bold text-slate-800 mb-6 shrink-0">Recent Activity</h3>
+                    <div className="flex-1 overflow-y-auto pr-2 space-y-4 hidden-scrollbar">
+                        {(!data.activities || data.activities.length === 0) ? (
+                            <p className="text-slate-500 text-sm">No recent activity found.</p>
+                        ) : (
+                            data.activities.map((act, i) => (
+                                <div key={i} className="flex flex-col p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <span className="font-bold text-slate-800 text-sm">{act.action}</span>
+                                        <span className="text-xs text-slate-400 font-medium">{new Date(act.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                    <p className="text-slate-600 text-sm">{act.description}</p>
+                                    <div className="mt-2">
+                                        <span className="text-[0.65rem] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md uppercase tracking-wide">{act.user_name}</span>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

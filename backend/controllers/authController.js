@@ -5,7 +5,7 @@ const db = require('../db');
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const result = await db.query('SELECT * FROM Users WHERE email = $1', [email]);
+        const result = await db.query('SELECT Users.*, Clubs.club_name FROM Users LEFT JOIN Clubs ON Users.club_id = Clubs.id WHERE email = $1', [email]);
 
         if (result.rows.length === 0) {
             return res.status(401).json({ error: 'Invalid credentials' });
@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, role: user.role, club_id: user.club_id, name: user.name },
+            { id: user.id, role: user.role, club_id: user.club_id, club_name: user.club_name, name: user.name },
             process.env.JWT_SECRET || 'supersecretkey',
             { expiresIn: '24h' }
         );
@@ -27,7 +27,7 @@ exports.login = async (req, res) => {
         // Update last log-in time
         await db.query('UPDATE Users SET last_login = CURRENT_TIMESTAMP WHERE id = $1', [user.id]);
 
-        res.json({ token, user: { id: user.id, name: user.name, role: user.role, club_id: user.club_id } });
+        res.json({ token, user: { id: user.id, name: user.name, role: user.role, club_id: user.club_id, club_name: user.club_name } });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

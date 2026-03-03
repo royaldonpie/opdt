@@ -66,7 +66,7 @@ const Settings = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2"><Building className="w-4 h-4 mr-2" /> Club Unit Name</label>
+                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2"><Building className="w-4 h-4 mr-2" /> Club Name</label>
                         <input type="text" name="club_name" value={formData.club_name} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" required />
                     </div>
                     <div>
@@ -95,7 +95,7 @@ const Settings = () => {
                     </div>
                     <div>
                         <label className="flex items-center text-sm font-bold text-slate-700 mb-2"><Phone className="w-4 h-4 mr-2" /> Director's Phone</label>
-                        <input type="text" name="phone_number" value={formData.phone_number} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" />
+                        <input type="tel" name="phone_number" value={formData.phone_number} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" placeholder="+2348012345678" pattern="^(\\+234|0)[789][01]\\d{8}$" title="Nigerian phone format: +234... or 0..." />
                     </div>
                 </div>
 
@@ -106,7 +106,7 @@ const Settings = () => {
                     </div>
                     <div>
                         <label className="flex items-center text-sm font-bold text-slate-700 mb-2"><Phone className="w-4 h-4 mr-2" /> Pastor's Phone</label>
-                        <input type="text" name="pastor_phone_number" value={formData.pastor_phone_number} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" placeholder="+1..." />
+                        <input type="tel" name="pastor_phone_number" value={formData.pastor_phone_number} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3" placeholder="+2348012345678" pattern="^(\\+234|0)[789][01]\\d{8}$" title="Nigerian phone format: +234... or 0..." />
                     </div>
                 </div>
 

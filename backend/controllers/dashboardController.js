@@ -25,6 +25,16 @@ exports.getAdminDashboard = async (req, res) => {
             LIMIT 5
         `);
 
+        // Recent Activity
+        const recentActivity = await db.query(`
+            SELECT a.*, c.club_name, u.name as user_name
+            FROM Activity_History a
+            JOIN Clubs c ON a.club_id = c.id
+            JOIN Users u ON a.user_id = u.id
+            ORDER BY a.created_at DESC
+            LIMIT 10
+        `);
+
         res.json({
             totalClubs: parseInt(clubsCount.rows[0].count),
             totalPathfinders: parseInt(pathfindersCount.rows[0].count),
@@ -32,7 +42,8 @@ exports.getAdminDashboard = async (req, res) => {
             pendingExams: parseInt(pendingExams.rows[0].count),
             approvedExams: parseInt(approvedExams.rows[0].count),
             reportsThisMonth: parseInt(reportsThisMonth.rows[0].count),
-            honorDistribution: honorDistribution.rows
+            honorDistribution: honorDistribution.rows,
+            activities: recentActivity.rows
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -49,13 +60,24 @@ exports.getDirectorDashboard = async (req, res) => {
         const approvedExams = await db.query(`SELECT COUNT(*) FROM Exams WHERE status = 'approved' AND club_id = $1`, [club_id]);
         const reportsSubmitted = await db.query(`SELECT COUNT(*) FROM Reports WHERE club_id = $1`, [club_id]);
 
+        const recentActivity = await db.query(`
+            SELECT a.*, c.club_name, u.name as user_name
+            FROM Activity_History a
+            JOIN Clubs c ON a.club_id = c.id
+            JOIN Users u ON a.user_id = u.id
+            WHERE a.club_id = $1
+            ORDER BY a.created_at DESC
+            LIMIT 10
+        `, [club_id]);
+
         res.json({
             totalMembers: parseInt(pathfindersCount.rows[0].count) + parseInt(instructorsCount.rows[0].count),
             pathfinders: parseInt(pathfindersCount.rows[0].count),
             instructors: parseInt(instructorsCount.rows[0].count),
             pendingExams: parseInt(pendingExams.rows[0].count),
             approvedExams: parseInt(approvedExams.rows[0].count),
-            reportsSubmitted: parseInt(reportsSubmitted.rows[0].count)
+            reportsSubmitted: parseInt(reportsSubmitted.rows[0].count),
+            activities: recentActivity.rows
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
