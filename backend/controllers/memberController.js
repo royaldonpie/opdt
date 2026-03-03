@@ -61,6 +61,36 @@ exports.deleteMember = async (req, res) => {
     }
 };
 
+exports.bulkDeleteMembers = async (req, res) => {
+    try {
+        const club_id = req.user.club_id;
+        const { ids } = req.body;
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ error: 'No IDs provided' });
+        }
+
+        // Get names for logging before deleting
+        const membersData = await db.query(`SELECT id, full_name FROM Members WHERE id = ANY($1::uuid[]) AND club_id = $2`, [ids, club_id]);
+        const validIds = membersData.rows.map(m => m.id);
+        const validNames = membersData.rows.map(m => m.full_name).join(', ');
+
+        if (validIds.length === 0) return res.status(404).json({ error: 'No valid members found to delete' });
+
+        await db.query(`DELETE FROM Member_Honors WHERE member_id = ANY($1::uuid[])`, [validIds]);
+        await db.query(`DELETE FROM Members WHERE id = ANY($1::uuid[]) AND club_id = $2`, [validIds, club_id]);
+
+        await db.query(`
+            INSERT INTO Activity_History (club_id, user_id, action, description)
+            VALUES ($1, $2, $3, $4)
+        `, [club_id, req.user.id, 'Bulk Deleted Members', `Deleted ${validIds.length} members from the roster.`]);
+
+        res.json({ message: 'Members deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 exports.updateMember = async (req, res) => {
     try {
         const club_id = req.user.club_id;

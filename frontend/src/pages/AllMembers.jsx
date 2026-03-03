@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
 import { AuthContext } from '../context/AuthContext';
-import { Users, Search } from 'lucide-react';
+import { Users, Search, Download } from 'lucide-react';
 
 const AllMembers = () => {
     const [members, setMembers] = useState([]);
@@ -37,6 +38,22 @@ const AllMembers = () => {
         return a.full_name.localeCompare(b.full_name);
     });
 
+    const handleExport = () => {
+        const ws = XLSX.utils.json_to_sheet(sortedMembers.map(m => ({
+            'Full Name': m.full_name,
+            'Gender': m.gender,
+            'Club Name': m.club_name,
+            'Church Name': m.church_name,
+            'Role': m.role,
+            'Class/Rank': m.role === 'instructor' ? m.instructor_rank : m.class_level,
+            'Age': m.age,
+            'Year Joined': m.year_joined
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "All_Members");
+        XLSX.writeFile(wb, `Global_Members_Export.xlsx`);
+    };
+
     if (loading) return <div className="p-8 text-center text-slate-500">Loading tracking data...</div>;
 
     return (
@@ -46,6 +63,9 @@ const AllMembers = () => {
                     <h2 className="text-2xl font-bold text-slate-800">Global Members Database</h2>
                     <p className="text-slate-500 text-sm mt-1">View, search, and sort all registered club members across the conference.</p>
                 </div>
+                <button onClick={handleExport} className="flex items-center py-2.5 px-5 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-sm hover:bg-slate-50 transition">
+                    <Download className="w-5 h-5 mr-2 text-indigo-500" /> Export to Excel
+                </button>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 mb-6">

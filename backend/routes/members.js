@@ -9,6 +9,7 @@ router.get('/', requireRole('director'), memberController.getMembers);
 router.get('/all', requireRole('super_admin', 'observer'), memberController.getAllMembers);
 router.post('/', requireRole('director'), memberController.addMember);
 router.put('/:id', requireRole('director'), memberController.updateMember);
+router.post('/bulk-delete', requireRole('director'), memberController.bulkDeleteMembers);
 router.delete('/:id', requireRole('director'), memberController.deleteMember);
 
 module.exports = router;

@@ -2,13 +2,14 @@ import React, { useEffect, useState, useContext, useRef } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { AuthContext } from '../context/AuthContext';
-import { UserPlus, Trash2, Shield, User, Upload, Edit } from 'lucide-react';
+import { UserPlus, Trash2, Shield, User, Upload, Edit, Download } from 'lucide-react';
 
 const ManageMembers = () => {
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [formVisible, setFormVisible] = useState(false);
     const [editId, setEditId] = useState(null);
+    const [selectedIds, setSelectedIds] = useState([]);
     const { token } = useContext(AuthContext);
     const fileInputRef = useRef(null);
 
@@ -57,9 +58,43 @@ const ManageMembers = () => {
     const handleDelete = async (id) => {
         if (!confirm('Are you sure you want to remove this member?')) return;
         try {
-            await axios.delete(`\/api/members/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.delete(`/api/members/${id}`, { headers: { Authorization: `Bearer ${token}` } });
             fetchMembers();
+            setSelectedIds(prev => prev.filter(selected => selected !== id));
         } catch (e) { alert('Error removing member'); }
+    };
+
+    const handleBulkDelete = async () => {
+        if (!confirm(`Are you sure you want to delete ${selectedIds.length} members?`)) return;
+        try {
+            await axios.post(`/api/members/bulk-delete`, { ids: selectedIds }, { headers: { Authorization: `Bearer ${token}` } });
+            setSelectedIds([]);
+            fetchMembers();
+        } catch (e) { alert('Error deleting members'); }
+    };
+
+    const handleSelectAll = (e) => {
+        if (e.target.checked) setSelectedIds(members.map(m => m.id));
+        else setSelectedIds([]);
+    };
+
+    const handleSelect = (id) => {
+        setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    };
+
+    const handleExport = () => {
+        const ws = XLSX.utils.json_to_sheet(members.map(m => ({
+            'Full Name': m.full_name,
+            'Gender': m.gender,
+            'Class Level': m.class_level,
+            'Role': m.role,
+            'Age': m.age,
+            'Instructor Rank': m.instructor_rank || 'N/A',
+            'Year Joined': m.year_joined
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Members");
+        XLSX.writeFile(wb, `Club_Members_Export.xlsx`);
     };
 
     const handleBulkImport = (e) => {
@@ -119,13 +154,21 @@ const ManageMembers = () => {
                     <h2 className="text-2xl font-bold tracking-tight text-slate-800">Club Entity Roster</h2>
                     <p className="text-slate-500 text-sm mt-1">Manage Pathfinders, Instructor ranks, and demographics.</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap justify-end">
+                    {selectedIds.length > 0 && (
+                        <button onClick={handleBulkDelete} className="flex items-center py-2.5 px-5 bg-rose-50 text-rose-600 rounded-xl shadow-sm hover:bg-rose-100 transition">
+                            <Trash2 className="w-5 h-5 mr-2" /> Delete ({selectedIds.length})
+                        </button>
+                    )}
+                    <button onClick={handleExport} className="flex items-center py-2.5 px-5 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-sm hover:bg-slate-50 transition">
+                        <Download className="w-5 h-5 mr-2 text-indigo-500" /> Export Excel
+                    </button>
                     <button onClick={() => fileInputRef.current.click()} className="flex items-center py-2.5 px-5 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-sm cursor-pointer hover:bg-slate-50 hover:shadow transition">
-                        <Upload className="w-5 h-5 mr-2 text-indigo-500" /> Excel Bulk Import
+                        <Upload className="w-5 h-5 mr-2 text-indigo-500" /> Bulk Import
                         <input type="file" accept=".xlsx, .xls" ref={fileInputRef} onChange={handleBulkImport} className="hidden" />
                     </button>
                     <button onClick={() => setFormVisible(!formVisible)} className="flex items-center py-2.5 px-5 bg-indigo-600 text-white rounded-xl shadow-md cursor-pointer hover:bg-indigo-700 hover:shadow-lg transition">
-                        <UserPlus className="w-5 h-5 mr-2" /> Manually Register Entity
+                        <UserPlus className="w-5 h-5 mr-2" /> Add Member
                     </button>
                 </div>
             </div>
@@ -191,7 +234,12 @@ const ManageMembers = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50/50 border-b border-slate-100">
-                                <th className="px-6 py-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest pl-10">Entity Identity & Demographics</th>
+                                <th className="px-6 py-4 pl-10 w-12 text-center">
+                                    <input type="checkbox" className="w-4 h-4 rounded appearance-none checked:bg-indigo-500 bg-white border border-slate-300 transition cursor-pointer"
+                                        checked={members.length > 0 && selectedIds.length === members.length}
+                                        onChange={handleSelectAll} />
+                                </th>
+                                <th className="px-6 py-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest">Entity Identity & Demographics</th>
                                 <th className="px-6 py-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest">Clearance & Rank Vector</th>
                                 <th className="px-6 py-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest">Entry Date</th>
                                 <th className="px-6 py-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest text-right pr-10">Action Override</th>
@@ -200,7 +248,12 @@ const ManageMembers = () => {
                         <tbody className="divide-y divide-slate-100">
                             {members.map((m, idx) => (
                                 <tr key={m.id} className="hover:bg-slate-50/50 transition duration-150 group">
-                                    <td className="px-6 py-5 pl-10">
+                                    <td className="px-6 py-5 pl-10 text-center">
+                                        <input type="checkbox" className="w-4 h-4 rounded appearance-none checked:bg-indigo-500 bg-white border border-slate-300 transition cursor-pointer"
+                                            checked={selectedIds.includes(m.id)}
+                                            onChange={() => handleSelect(m.id)} />
+                                    </td>
+                                    <td className="px-6 py-5">
                                         <div className="flex items-center">
                                             <div className="w-12 h-12 rounded-[14px] bg-gradient-to-tr from-slate-100 to-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-600 font-black text-xl mr-5 shrink-0 transform group-hover:scale-105 transition duration-300">
                                                 {m.full_name.charAt(0)}
