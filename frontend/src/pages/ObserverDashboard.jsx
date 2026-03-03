@@ -71,8 +71,8 @@ const ObserverDashboard = () => {
                             <Award className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm font-semibold text-slate-500">Exams Approved Total</p>
-                            <h3 className="text-3xl font-black text-slate-800">{dashboardData.approvedExams}</h3>
+                            <p className="text-sm font-semibold text-slate-500">Number of Baptisms</p>
+                            <h3 className="text-3xl font-black text-slate-800">{dashboardData.totalBaptisms}</h3>
                         </div>
                     </div>
                 </div>
@@ -119,7 +119,7 @@ const ObserverDashboard = () => {
                                     <h4 className="font-bold text-sm text-slate-700 capitalize">{r.report_type} Report</h4>
                                     <p className="text-[0.7rem] text-slate-500 font-medium">{r.club_name} • {new Date(r.date_submitted).toLocaleDateString()}</p>
                                     {r.file_url && (
-                                        <a href={`\${r.file_url}`} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:text-indigo-700 font-semibold block mt-1 underline">
+                                        <a href={`${r.file_url}`} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:text-indigo-700 font-semibold block mt-1 underline">
                                             View Report File
                                         </a>
                                     )}

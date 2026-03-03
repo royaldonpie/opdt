@@ -151,7 +151,7 @@ const AdminReports = () => {
                                 </div>
                             ) : (
                                 r.file_url && (
-                                    <a href={`\${r.file_url}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer block hover:bg-slate-100 transition">
+                                    <a href={`${r.file_url}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50/80 border border-slate-100 rounded-2xl p-4 mb-6 relative group/btn cursor-pointer block hover:bg-slate-100 transition">
                                         <div className="absolute top-1/2 -mt-[8px] right-4 opacity-0 group-hover/btn:opacity-100 group-hover/btn:-translate-y-1 transition text-slate-600">
                                             <DownloadCloud className="w-5 h-5" />
                                         </div>
@@ -189,7 +189,7 @@ const AdminReports = () => {
 
                         <div className="mt-auto">
                             <button onClick={() => handleAction(r.id, r.approved)} className={`w-full font-bold py-3 text-sm rounded-xl border transition ${!r.approved ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border-emerald-200' : 'bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200'}`}>
-                                {r.approved ? 'Revoke Endorsement' : 'Endorse Mission Report'}
+                                {r.approved ? 'Revoke Endorsement' : `Endorse ${r.report_type.charAt(0).toUpperCase() + r.report_type.slice(1)} Report`}
                             </button>
                         </div>
                     </div>
