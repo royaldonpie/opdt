@@ -42,7 +42,9 @@ const Login = () => {
 
             <div className="max-w-md w-full bg-white/80 backdrop-blur-2xl p-10 rounded-[3rem] shadow-[0_8px_40px_rgb(0,0,0,0.06)] border border-white">
                 <div className="text-center mb-10">
-                    <img src="/logo.png" alt="Ogun Pathfinder Logo" className="w-20 h-20 object-contain mx-auto mb-6 drop-shadow-md" />
+                    <a href="https://opdt-platform.onrender.com/">
+                        <img src="/logo.png" alt="Ogun Pathfinder Logo" className="w-20 h-20 object-contain mx-auto mb-6 drop-shadow-md cursor-pointer hover:scale-105 transition-transform" />
+                    </a>
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-2">Login Portal</h1>
                     <p className="text-slate-500 text-sm font-medium">Securely access your toolbox interface.</p>
                 </div>
