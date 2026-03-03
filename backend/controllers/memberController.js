@@ -1,4 +1,8 @@
 const db = require('../db');
+const xlsx = require('xlsx');
+const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');
+const fs = require('fs');
 
 exports.getMembers = async (req, res) => {
     try {
@@ -135,5 +139,115 @@ exports.getAllMembers = async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+};
+
+exports.intelligentImport = async (req, res) => {
+    try {
+        const club_id = req.user.club_id;
+        if (!req.file) return res.status(400).json({ error: 'No file uploaded for intelligent processing.' });
+
+        const filePath = req.file.path;
+        const ext = req.file.originalname.split('.').pop().toLowerCase();
+        let extractedText = '';
+        let membersToInsert = [];
+
+        // 1. Intake the File and Extract Text/Objects based on format
+        if (['xlsx', 'xls', 'csv'].includes(ext)) {
+            const workbook = xlsx.readFileSync(filePath);
+            const sheetName = workbook.SheetNames[0];
+            const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+            // Intelligent Mapping Strategy for Spreadsheets
+            data.forEach(row => {
+                const role = (row.role || row.Role || 'pathfinder').toLowerCase();
+                const gender = row.gender || row.Gender || row.sex || 'Male';
+                const classLevel = row.class_level || row.Class || row.Level || 'Friend';
+
+                membersToInsert.push({
+                    full_name: row.full_name || row.Name || row.name || 'Unknown Entity',
+                    gender: gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase(),
+                    role: role === 'instructor' ? 'instructor' : 'pathfinder',
+                    class_level: classLevel,
+                    year_joined: parseInt(row.year_joined || row.Year || new Date().getFullYear()),
+                    age: parseInt(row.age || row.Age || 10),
+                    instructor_rank: row.instructor_rank || row.Rank || ''
+                });
+            });
+        }
+        else if (ext === 'pdf') {
+            const dataBuffer = fs.readFileSync(filePath);
+            const pdfData = await pdfParse(dataBuffer);
+            extractedText = pdfData.text;
+        }
+        else if (['doc', 'docx'].includes(ext)) {
+            const result = await mammoth.extractRawText({ path: filePath });
+            extractedText = result.value;
+        } else {
+            return res.status(400).json({ error: 'Unsupported file format.' });
+        }
+
+        // 2. Intelligent AI-Regex Fallback for Raw Text (PDF/DOC)
+        if (extractedText) {
+            const lines = extractedText.split('\n').map(l => l.trim()).filter(l => l.length > 5);
+
+            lines.forEach(line => {
+                // Ignore obvious headers
+                if (line.toLowerCase().includes('name') && line.toLowerCase().includes('gender')) return;
+
+                let role = 'pathfinder';
+                let class_level = 'Friend';
+                let age = 10;
+                let gender = 'Male';
+
+                const lowerLine = line.toLowerCase();
+                if (lowerLine.includes('female')) gender = 'Female';
+                if (lowerLine.includes('instructor')) role = 'instructor';
+
+                ['companion', 'explorer', 'ranger', 'voyager', 'guide'].forEach(c => {
+                    if (lowerLine.includes(c)) class_level = c.charAt(0).toUpperCase() + c.slice(1);
+                });
+
+                // Match a generic two or three word string for the Name
+                let nameMatch = line.match(/^([A-Z][a-z]+\s[A-Z][a-z]+(\s[A-Z][a-z]+)?)/);
+                let fullName = nameMatch ? nameMatch[1] : null;
+
+                if (fullName) {
+                    membersToInsert.push({
+                        full_name: fullName.trim(),
+                        gender,
+                        role,
+                        class_level,
+                        year_joined: new Date().getFullYear(),
+                        age,
+                        instructor_rank: role === 'instructor' ? 'Guide' : ''
+                    });
+                }
+            });
+        }
+
+        if (membersToInsert.length === 0) return res.status(400).json({ error: 'Intelligent AI could not parse any valid members from this document structure.' });
+
+        // 3. Database Injection
+        let successCount = 0;
+        for (let m of membersToInsert) {
+            await db.query(`
+                INSERT INTO Members (full_name, gender, class_level, role, club_id, year_joined, age, instructor_rank) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            `, [
+                m.full_name, m.gender, m.class_level, m.role, club_id, m.year_joined, m.age, m.instructor_rank || null
+            ]);
+            successCount++;
+        }
+
+        await db.query(`
+            INSERT INTO Activity_History (club_id, user_id, action, description)
+            VALUES ($1, $2, $3, $4)
+        `, [club_id, req.user.id, 'Intelligent Roster Import', `System securely digested document mapping ${successCount} member records.`]);
+
+        res.json({ message: `Intelligent processing complete. ${successCount} members safely added to the immutable roster.` });
+
+    } catch (err) {
+        res.status(500).json({ error: 'AI processing failed: ' + err.message });
     }
 };

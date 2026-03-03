@@ -97,43 +97,29 @@ const ManageMembers = () => {
         XLSX.writeFile(wb, `Club_Members_Export.xlsx`);
     };
 
-    const handleBulkImport = (e) => {
+    const handleBulkImport = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = async (evt) => {
-            try {
-                const bstr = evt.target.result;
-                const wb = XLSX.read(bstr, { type: 'binary' });
-                const wsname = wb.SheetNames[0];
-                const ws = wb.Sheets[wsname];
-                const data = XLSX.utils.sheet_to_json(ws);
+        const formData = new FormData();
+        formData.append('roster_file', file);
 
-                // Process and insert sequentially for demo
-                setLoading(true);
-                for (let row of data) {
-                    const parsed = {
-                        full_name: row.full_name || row.Name || 'Unknown',
-                        gender: row.gender || row.Gender || 'Male',
-                        class_level: row.class_level || row.Class || 'Friend',
-                        role: row.role || row.Role || 'pathfinder',
-                        year_joined: parseInt(row.year_joined || row.Year || new Date().getFullYear()),
-                        age: parseInt(row.age || row.Age || 10),
-                        instructor_rank: row.instructor_rank || row.Rank || ''
-                    };
-                    await axios.post('\/api/members', parsed, { headers: { Authorization: `Bearer ${token}` } });
+        setLoading(true);
+        try {
+            const res = await axios.post('/api/members/intelligent-import', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
                 }
-                alert('Bulk roster successfully imported and mapped to database!');
-                fetchMembers();
-            } catch (err) {
-                alert('Failed to parse excel file. Ensure headers match exactly: full_name, gender, class_level, role, year_joined, age, instructor_rank.');
-            } finally {
-                setLoading(false);
-                if (fileInputRef.current) fileInputRef.current.value = '';
-            }
-        };
-        reader.readAsBinaryString(file);
+            });
+            alert(res.data.message || 'Bulk roster successfully imported and mapped to database!');
+            fetchMembers();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to parse file. Ensure it is a valid format.');
+        } finally {
+            setLoading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
     };
 
     if (loading) return <div>Data sync initializing...</div>;
@@ -164,8 +150,8 @@ const ManageMembers = () => {
                         <Download className="w-5 h-5 mr-2 text-indigo-500" /> Export Excel
                     </button>
                     <button onClick={() => fileInputRef.current.click()} className="flex items-center py-2.5 px-5 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-sm cursor-pointer hover:bg-slate-50 hover:shadow transition">
-                        <Upload className="w-5 h-5 mr-2 text-indigo-500" /> Bulk Import
-                        <input type="file" accept=".xlsx, .xls" ref={fileInputRef} onChange={handleBulkImport} className="hidden" />
+                        <Upload className="w-5 h-5 mr-2 text-indigo-500" /> Intelligent Import (Excel/Doc/PDF)
+                        <input type="file" accept=".xlsx, .xls, .csv, .pdf, .doc, .docx" ref={fileInputRef} onChange={handleBulkImport} className="hidden" />
                     </button>
                     <button onClick={() => setFormVisible(!formVisible)} className="flex items-center py-2.5 px-5 bg-indigo-600 text-white rounded-xl shadow-md cursor-pointer hover:bg-indigo-700 hover:shadow-lg transition">
                         <UserPlus className="w-5 h-5 mr-2" /> Add Member

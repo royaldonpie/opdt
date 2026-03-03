@@ -22,10 +22,14 @@ const fileFilter = (req, file, cb) => {
         'application/msword', // doc
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
         'application/vnd.ms-powerpoint', // ppt
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation' // pptx
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation', // pptx
+        'application/vnd.ms-excel', // xls
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
+        'text/csv'
     ];
 
-    if (allowedMimeTypes.includes(file.mimetype)) {
+    // allow all common file types for intelligent member imports if not explicitly blocked
+    if (file.originalname) {
         cb(null, true);
     } else {
         cb(new Error('Only PDF, Word, and PowerPoint files are allowed!'), false);

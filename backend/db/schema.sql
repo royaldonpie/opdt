@@ -106,6 +106,15 @@ CREATE TABLE IF NOT EXISTS Notifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS Activity_History (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    club_id UUID REFERENCES Clubs(id) NOT NULL,
+    user_id UUID REFERENCES Users(id) NOT NULL,
+    action VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Ensure columns exist for retro-compatibility on existing Render databases
 ALTER TABLE Clubs ADD COLUMN IF NOT EXISTS address VARCHAR(255);
 ALTER TABLE Clubs ADD COLUMN IF NOT EXISTS district VARCHAR(255);
