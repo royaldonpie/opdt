@@ -29,6 +29,11 @@ exports.updateClubSettings = async (req, res) => {
             WHERE id = $9
         `, [club_name, address, district, federation, pathfinder_director, church_pastor, phone_number, pastor_phone_number, req.user.club_id]);
 
+        await db.query(`
+            INSERT INTO Activity_History (club_id, user_id, action, description)
+            VALUES ($1, $2, $3, $4)
+        `, [req.user.club_id, req.user.id, 'Settings Updated', `Modified operational club credentials and registry settings.`]);
+
         res.json({ message: 'Settings saved successfully!' });
     } catch (err) {
         res.status(500).json({ error: err.message });

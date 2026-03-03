@@ -63,6 +63,11 @@ exports.submitExam = async (req, res) => {
             [actual_club_id, class_level, exam_type, honor_name, exam_file.filename, aiAnalysis]
         );
 
+        await db.query(`
+            INSERT INTO Activity_History (club_id, user_id, action, description)
+            VALUES ($1, $2, $3, $4)
+        `, [actual_club_id, req.user.id, 'Exam Uploaded', `Uploaded a ${class_level} ${exam_type} exam payload.`]);
+
         await db.query('COMMIT');
         res.status(201).json({ message: 'Exam uploaded and screened by AI successfully' });
 
@@ -124,10 +129,18 @@ exports.updateExamStatus = async (req, res) => {
             }
         }
 
-        await db.query(
-            `UPDATE Exams SET status = $1, admin_comment = $2, file_path = $3 WHERE id = $4`,
+        const updated = await db.query(
+            `UPDATE Exams SET status = $1, admin_comment = $2, file_path = $3 WHERE id = $4 RETURNING club_id, class_level, exam_type`,
             [status, admin_comment, targetFile, id]
         );
+
+        if (updated.rows.length > 0) {
+            const e = updated.rows[0];
+            await db.query(`
+                INSERT INTO Activity_History (club_id, user_id, action, description)
+                VALUES ($1, $2, $3, $4)
+            `, [e.club_id, req.user.id, 'Exam Reviewed', `Admin marked ${e.class_level} ${e.exam_type} exam as ${status}.`]);
+        }
         res.json({ message: 'Exam updated successfully', file_path: targetFile });
     } catch (err) {
         res.status(500).json({ error: err.message });

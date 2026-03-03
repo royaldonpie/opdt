@@ -22,6 +22,11 @@ exports.submitReport = async (req, res) => {
             [club_id, report_type, file_url, video_link || null, baptism_count || null]
         );
 
+        await db.query(`
+            INSERT INTO Activity_History (club_id, user_id, action, description)
+            VALUES ($1, $2, $3, $4)
+        `, [club_id, req.user.id, 'Report Submitted', `Submitted a ${report_type} report securely.`]);
+
         res.status(201).json({ message: 'Report submitted successfully', report: result.rows[0] });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -52,7 +57,14 @@ exports.updateReportStatus = async (req, res) => {
         const { id } = req.params;
         const { approved, admin_remark } = req.body;
 
-        await db.query(`UPDATE Reports SET approved = $1, admin_remark = $2 WHERE id = $3`, [approved, admin_remark, id]);
+        const reportResult = await db.query(`UPDATE Reports SET approved = $1, admin_remark = $2 WHERE id = $3 RETURNING club_id, report_type`, [approved, admin_remark, id]);
+
+        if (reportResult.rows.length > 0) {
+            await db.query(`
+                INSERT INTO Activity_History (club_id, user_id, action, description)
+                VALUES ($1, $2, $3, $4)
+            `, [reportResult.rows[0].club_id, req.user.id, 'Report Reviewed', `Admin marked ${reportResult.rows[0].report_type} report as ${approved ? 'approved' : 'rejected'}.`]);
+        }
         res.json({ message: 'Report status updated' });
     } catch (err) {
         res.status(500).json({ error: err.message });
