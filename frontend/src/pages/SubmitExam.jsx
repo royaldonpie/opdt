@@ -8,6 +8,8 @@ const SubmitExam = () => {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null);
     const [file, setFile] = useState(null);
+    const [honorsList, setHonorsList] = useState([]);
+
     // Fetch honors based on selected class
     React.useEffect(() => {
         if (token) {

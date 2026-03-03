@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS Clubs (
     director_id UUID REFERENCES Users(id)
 );
 
+ALTER TABLE Users DROP CONSTRAINT IF EXISTS fk_user_club;
 ALTER TABLE Users ADD CONSTRAINT fk_user_club FOREIGN KEY (club_id) REFERENCES Clubs(id);
 
 CREATE TABLE IF NOT EXISTS Members (
@@ -40,8 +41,10 @@ CREATE TABLE IF NOT EXISTS Members (
 CREATE TABLE IF NOT EXISTS Reports (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     club_id UUID REFERENCES Clubs(id) NOT NULL,
-    report_type VARCHAR(50) CHECK (report_type IN ('investiture', 'induction', 'enrollment', 'program')) NOT NULL,
-    file_url TEXT NOT NULL,
+    report_type VARCHAR(50) NOT NULL,
+    file_url TEXT,
+    video_link VARCHAR(255),
+    baptism_count INTEGER,
     date_submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     approved BOOLEAN DEFAULT FALSE,
     admin_remark TEXT
@@ -50,7 +53,7 @@ CREATE TABLE IF NOT EXISTS Reports (
 CREATE TABLE IF NOT EXISTS Exams (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     club_id UUID REFERENCES Clubs(id) NOT NULL,
-    class_level VARCHAR(50) CHECK (class_level IN ('Friend', 'Companion', 'Explorer', 'Ranger', 'Voyager', 'Guide')) NOT NULL,
+    class_level VARCHAR(50) NOT NULL,
     exam_type VARCHAR(50) CHECK (exam_type IN ('achievement_class', 'honor')) NOT NULL,
     honor_name VARCHAR(255),
     status VARCHAR(50) CHECK (status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
@@ -90,5 +93,15 @@ CREATE TABLE IF NOT EXISTS Resources (
     description TEXT,
     type VARCHAR(50) CHECK (type IN ('pdf', 'link')) NOT NULL,
     file_url TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS Notifications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    sender_id UUID REFERENCES Users(id),
+    receiver_id UUID REFERENCES Users(id),
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

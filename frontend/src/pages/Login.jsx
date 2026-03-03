@@ -12,13 +12,8 @@ const Login = () => {
     const location = useLocation();
 
     useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const emailParam = params.get('email');
-        if (emailParam) {
-            setEmail(emailParam);
-            setPassword('password123'); // auto fill
-        }
-    }, [location.search]);
+        // Removed autofill
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
